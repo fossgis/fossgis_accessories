@@ -5,4 +5,6 @@ all:
 
 
 clean:
-	rm images/*.pdf teilnehmerzettel.aux teilnehmerzettel.log 
+	rm images/*.pdf teilnehmerzettel.aux teilnehmerzettel.log \
+	teilnehmerzettel.pdf teilnehmerzettel-nup.pdf \
+	teilnehmer.csv teilnehmer.tex
