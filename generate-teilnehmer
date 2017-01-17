@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+
+
+baseurl = "https://fossgis.m-berberich.de/index.php/survey/index/sid/885945/token/%s"
+
+import sys, os, random, base64, qrcode, qrcode.image.svg, subprocess
+
+def escape(s):
+    if '"' in s:
+        return '"%s"' % s.replace('"', '""')
+    if " " in s:
+        s = '"%s"' % s
+    return s
+
+def printline(first, last, token, email="", file=sys.stdout):
+    print(escape(first), escape(last), escape(token), escape(email), sep=",", file=file)
+
+def printtex(first, last, token, file=sys.stdout):
+    url = baseurl % token
+    print("\participant{%s}{%s}{%s}{%s}" % (first, last, token, url), file=file)
+    
+def gen_token():
+    while True:
+        r = random.getrandbits(64).to_bytes(8, byteorder='little')
+        token = base64.b32encode(r).decode().strip("=").lower()
+        if token in used:
+            print("random-collision")
+            continue
+        return token
+    
+###########################################################################
+#
+# main
+#
+###########################################################################
+
+csv = open("teilnehmer.csv", "w")
+tex = open("teilnehmer.tex", "w")
+printline("firstname", "lastname", "token", email="email", file=csv)
+used = []
+for i in range(10):
+    token = gen_token()
+
+    url = baseurl % token
+    # qr = qrcode.make(url)
+    # qr.save("images/%s.png" % token)
+    svg_file = "images/%s.svg" % token
+    qr_svg = qrcode.make(url, image_factory=qrcode.image.svg.SvgPathImage)
+    qr_svg.save(svg_file)
+    subprocess.run(["inkscape", "--without-gui",
+                    "--export-pdf=images/%s.pdf" % token, svg_file])
+    os.remove(svg_file)
+    used.append(token)
+    printline("Teilnehmer", "%04d" % i, token, file=csv)
+    printtex("Teilnehmer", "%04d" % i, token, file=tex)
+tex.close()
+csv.close()
