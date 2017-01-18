@@ -2,8 +2,11 @@
 
 
 baseurl = "https://fossgis.m-berberich.de/index.php/survey/index/sid/885945/token/%s"
+numparts = 1000
+offset = 1
 
-import sys, os, random, base64, qrcode, qrcode.image.svg, subprocess
+import sys, os, io, random, subprocess
+import base64, qrcode, qrcode.image.svg, cairosvg
 
 def escape(s):
     if '"' in s:
@@ -27,31 +30,63 @@ def gen_token():
             print("random-collision")
             continue
         return token
-    
+
+def usage(file=sys.stdout):
+    print("usage: %s offset number-of-participants baseurl\n"
+          "       where baseurl contains a '%%s' for the token" %
+          os.path.basename(sys.argv[0]) , file=file)
+
 ###########################################################################
 #
 # main
 #
 ###########################################################################
 
+if len(sys.argv) == 2 and sys.argv[1] == "--help":
+    usage()
+    exit(0)
+    
+if len(sys.argv) != 4:
+    usage(sys.stderr)
+    exit(1)
+
+#"https://fossgis.m-berberich.de/index.php/survey/index/sid/885945/token/%s"
+offset = int(sys.argv[1])
+numparts = int(sys.argv[2])
+baseurl = str(sys.argv[3])
+print("generating %d participants starting at %d with\nbaseurl: ‘%s’" % (numparts, offset, baseurl))
+
 csv = open("teilnehmer.csv", "w")
 tex = open("teilnehmer.tex", "w")
 printline("firstname", "lastname", "token", email="email", file=csv)
 used = []
-for i in range(10):
+for i in range(numparts):
+    number = i+offset
     token = gen_token()
-
     url = baseurl % token
-    # qr = qrcode.make(url)
-    # qr.save("images/%s.png" % token)
     svg_file = "images/%s.svg" % token
+    
     qr_svg = qrcode.make(url, image_factory=qrcode.image.svg.SvgPathImage)
-    qr_svg.save(svg_file)
-    subprocess.run(["inkscape", "--without-gui",
-                    "--export-pdf=images/%s.pdf" % token, svg_file])
-    os.remove(svg_file)
+    qr_svg_bytes = io.BytesIO()
+    qr_svg.save(qr_svg_bytes)
+    cairosvg.svg2pdf(qr_svg_bytes.getvalue(), write_to="images/%s.pdf" % token)
+    qr_svg_bytes.close()
     used.append(token)
-    printline("Teilnehmer", "%04d" % i, token, file=csv)
-    printtex("Teilnehmer", "%04d" % i, token, file=tex)
+    printline("Teilnehmer", "%04d" % number, token, file=csv)
+    printtex("Teilnehmer", "%04d" % number, token, file=tex)
 tex.close()
 csv.close()
+
+
+    # for i in *.svg; do echo --export-pdf=${i%.svg}.pdf $i; done | inkscape --shell
+    #
+
+
+    #subprocess.run(["inkscape", "--without-gui",
+    #                "--export-pdf=images/%s.pdf" % token, svg_file])
+    #os.remove(svg_file)
+    # import io
+    # qr_svg_bytes = io.BytesIO()
+    # qr_svg.save(qr_svg_bytes)
+    # cairosvg.svg2pdf(qr_svg_str.getvalue(), write_to="X.pdf")
+    # qr_svg_bytes.close()
