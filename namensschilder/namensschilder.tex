@@ -1,0 +1,36 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[schilder]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedtrue % Rahmen um Namensschild
+\@emptycrossmarkfalse % Falzmarken
+\@cutmarktrue % Schnittmarken
+\makeatother
+
+\newcommand{\schild}[3]{\ticket{%
+\ifthenelse{\equal{#3}{}}{}{
+\put(7,55){\scalebox{2.2}{\textbf{#3}}} 
+}
+\put(7,35){\scalebox{2}{\textbf{#1}}}
+\put(7,25){\scalebox{1.5}{\textbf{#2}}}
+\put(7,5){\scalebox{1}{\textcolor{gray}{%
+\textit{FOSSGIS Konferenz 2017}}}}
+}}
+
+\begin{document} 
+
+\DTLloaddb{CSV}{namen.csv}
+\DTLsort{Nachname}{CSV}
+\DTLforeach{CSV}{\vorname=Vorname,\nachname=Nachname,\nickname=Nickname}
+{
+  \schild{\vorname}{\nachname}{\nickname}
+} 
+\end{document} 
