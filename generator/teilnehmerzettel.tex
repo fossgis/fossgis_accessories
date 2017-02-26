@@ -1,0 +1,38 @@
+\documentclass[paper=21.0cm:6.2cm, oneside, fontsize=14pt, DIV=21]{scrartcl}
+\usepackage{graphicx}
+\usepackage{libertine}
+\usepackage{url}
+
+\pagestyle{empty}
+\parindent 0pt
+\parskip 1ex
+\overfullrule 10pt
+
+\newcommand\participant[4]{%
+  \noindent\hbox to \linewidth{%
+    \vbox{\hsize=0.7\linewidth
+      \medskip
+      {\Huge\textbf{FOSSGIS 2017}\\
+        {\huge\textsf{\textbf{Umfrage und Auslosung}}}\par}%
+
+      \medskip
+      Teilnehmernummer: \textbf{\textsf{#2}}
+      
+      Umfrageurl: \textsf{https://domain/} 
+
+      Code: \textbf{\textsf{#3}}
+    }\hfil
+      \expandafter\includegraphics[width=3cm]{images/#3.pdf}%
+  }%
+  \eject
+}
+
+\begin{document}
+\input teilnehmer.tex
+\end{document}
+
+%%% Local Variables: 
+%%% coding: utf-8
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% End:
