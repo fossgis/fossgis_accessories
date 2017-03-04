@@ -15,22 +15,45 @@
 \@cutmarktrue % Schnittmarken
 \makeatother
 
-\newcommand{\schild}[3]{\ticket{%
-\ifthenelse{\equal{#3}{}}{}{
-\put(7,55){\scalebox{2.2}{\textbf{#3}}} 
-}
+%\newcommand{\schild}[3]{\ticket{%
+%\ifthenelse{\equal{#3}{}}{}{
+%\put(7,55){\scalebox{2.2}{\textbf{#3}}} 
+%}
+%\put(7,35){\scalebox{2}{\textbf{#1}}}
+%\put(7,25){\scalebox{1.5}{\textbf{#2}}}
+%\put(7,5){\scalebox{1}{\textcolor{gray}{%
+%\textit{FOSSGIS Konferenz 2017}}}}
+%}}
+
+\newcommand{\schild}[7]{\ticket{%
+\put(7,60){\includegraphics[width=4cm]{imgs/fossgis.png}}%
+\ifthenelse{\equal{#3}{528}}{
+\put(53,60){\includegraphics[width=2.7cm]{imgs/osgeo.png}}%
+\put(86,60){\includegraphics[width=1.3cm]{imgs/osm.png}}%
+}{}
 \put(7,35){\scalebox{2}{\textbf{#1}}}
+\ifthenelse{\equal{#2}{1}}{}{
 \put(7,25){\scalebox{1.5}{\textbf{#2}}}
+}
 \put(7,5){\scalebox{1}{\textcolor{gray}{%
-\textit{FOSSGIS Konferenz 2017}}}}
+\textit{FOSSGIS Konferenz 2017}}}
+}
+\put(57,5){
+\ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.4}{WS}}
+\ifthenelse{\equal{#4}{}}{}{$\bf\cdot$\;\includegraphics[width=0.6cm]{imgs/shirt.png}\,}
+\ifthenelse{\equal{#6}{}}{}{$\bf\cdot$\,\includegraphics[width=0.7cm]{imgs/essen.png}}
+\ifthenelse{\equal{#7}{}}{}{$\bf\cdot$\;\,\includegraphics[width=0.6cm]{imgs/buch.png}}
+}
 }}
 
 \begin{document} 
 
-\DTLloaddb{CSV}{namen.csv}
-\DTLsort{Nachname}{CSV}
-\DTLforeach{CSV}{\vorname=Vorname,\nachname=Nachname,\nickname=Nickname}
+\DTLsetseparator{;}
+\DTLloaddb{CSV}{pretix.csv}
+%\DTLsort{WSCount}{CSV}
+\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=242,\shirt=534,\count=WSCount,
+                 \dialoge=316,\tagungsband=319}
 {
-  \schild{\vorname}{\nachname}{\nickname}
+  \schild{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
 } 
 \end{document} 
