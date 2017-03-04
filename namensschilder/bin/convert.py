@@ -62,7 +62,7 @@ print("\nNumber of attendees: " + str(len(persons)))
 print("\nCSV:\n")
 
 # print header:
-sys.stdout.write("Name;Variant")
+sys.stdout.write("Name;Variant;WSCount")
 for it in items:
     sys.stdout.write(";" + str(it))
 sys.stdout.write("\n")
@@ -71,7 +71,14 @@ for person in persons:
     sys.stdout.write(person + ";")
     dict = persons[person]
     sys.stdout.write(str(dict[0]))
-    
+
+    count = 0
+    for it in items:
+        if it in dict and "Workshop" in items[it]:
+            count += 1
+
+    sys.stdout.write(";" + str(count))
+            
     for it in items:
         if it in dict:
             out = str(dict[it]).replace("\r", "").replace("\n", "\\n").replace(";", "")
