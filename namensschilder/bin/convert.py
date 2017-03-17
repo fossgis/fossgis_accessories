@@ -3,7 +3,20 @@
 
 import json, sys
 
-f = open('pretixdata.json', 'r');
+
+def normalize(name):
+    name = name.replace(", BSc", "")
+    if name.find(" (") > 0:
+        name = name[:name.find(" (")]
+    return name
+
+def extractSurname(name):
+    name = normalize(name)
+    split = name.split(" ")
+    return split[-1]
+
+
+f = open('/tmp/pretixdata.json', 'r');
 data = json.load(f);
 
 print(json.dumps(data, indent=4))
@@ -60,31 +73,33 @@ print("\nNumber of attendees: " + str(len(persons)))
 #print(persons)
 
 print("\nCSV:\n")
+f = open('/tmp/pretixdata.csv', 'w');
 
 # print header:
-sys.stdout.write("Name;Variant;WSCount")
+f.write("Name;Nachname;Variant;WSCount")
 for it in items:
-    sys.stdout.write(";" + str(it))
-sys.stdout.write("\n")
+    f.write(";" + str(it))
+f.write("\n")
 
 for person in persons:
-    sys.stdout.write(person + ";")
+    f.write(normalize(person) + ";")
+    f.write(extractSurname(person) + ";")
     dict = persons[person]
-    sys.stdout.write(str(dict[0]))
+    f.write(str(dict[0]))
 
     count = 0
     for it in items:
         if it in dict and "Workshop" in items[it]:
             count += 1
 
-    sys.stdout.write(";" + str(count))
+    f.write(";" + str(count))
             
     for it in items:
         if it in dict:
             out = str(dict[it]).replace("\r", "").replace("\n", "\\n").replace(";", "")
-            sys.stdout.write(";" + out)
+            f.write(";" + out)
         else:
-            sys.stdout.write(";")
-    sys.stdout.write("\n")
+            f.write(";")
+    f.write("\n")
             
-sys.stdout.flush()
+f.flush()
