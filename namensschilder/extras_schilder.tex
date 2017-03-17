@@ -1,0 +1,79 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[extras,rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+ 
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedtrue % Rahmen um Namensschild
+\@emptycrossmarkfalse % Falzmarken
+\@cutmarkfalse % Schnittmarken
+\makeatother
+
+\newcommand{\extras}[6]{\ticket{%
+    \put(63,33){\includegraphics[width=2.0cm]{imgs/fossgis17_black.png}}
+
+    \put(6,22){
+      \begin{minipage}[c]{0.35\textwidth}
+
+        \ifthenelse{\equal{#2}{518}}{Standardticket\par}{}
+        \ifthenelse{\equal{#2}{528}}{Communityticket\par}{}
+        \ifthenelse{\equal{#2}{525}}{Studierendenticket\par}{}
+        \ifthenelse{\equal{#2}{522}}{Beitragendenticket}{}
+
+        \vskip 0.3cm
+        
+        \ifthenelse{\equal{#4}{0}}{}{
+          \ifthenelse{\equal{#4}{1}}{
+              1 Workshop\vskip 0.3cm
+            }{
+              #4 Workshops\vskip 0.3cm
+            }
+        }
+
+        \ifthenelse{\equal{#3}{}}{}{\includegraphics[width=0.6cm]{imgs/shirt.png} (#3)\,}
+        \ifthenelse{\equal{#5}{}}{}{\includegraphics[width=0.7cm]{imgs/essen.png}\,}
+        \ifthenelse{\equal{#6}{}}{}{\includegraphics[width=0.6cm]{imgs/buch.png}\,}
+
+      \end{minipage}
+    }
+
+    \put(6,47){
+      \begin{minipage}[t]{0.3\textwidth}
+        \textbf{#1}
+      \end{minipage}
+    }
+    
+    \put(3,7){
+      \noindent\rule{0.37\textwidth}{0.4pt}\\
+    }
+    
+    \put(39,3){
+      \textcolor{gray}{
+        \small\textit{FOSSGIS-Konferenz 2017}
+      }
+    }
+}}
+
+
+\begin{document} 
+
+\DTLsetseparator{;}
+\DTLloaddb{CSV}{pretix.csv}
+%\DTLloaddb{CSV}{pretix_full.csv}
+%\DTLsort{Nachname}{CSV}
+\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=242,\shirt=534,\count=WSCount,
+                 \dialoge=316,\tagungsband=319}
+{
+  \extras{\person}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
+} 
+\end{document} 
