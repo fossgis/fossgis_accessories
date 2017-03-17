@@ -54,8 +54,8 @@ for order in data["event"]["orders"]:
                 continue
             if pos["answers"]:
                 persons[name][pos["item"]] = pos["answers"][0]["answer"]
-            else:
-                persons[name][pos["item"]] = 1                   
+            #else:
+            #    persons[name][pos["item"]] = 1                   
         else:
             for name in names:
                 if not name in persons:
@@ -65,8 +65,8 @@ for order in data["event"]["orders"]:
                     if pos["answers"]:
                         persons[name][pos["item"]] = pos["answers"][0]["answer"]
                         break
-                    else:
-                        persons[name][pos["item"]] = 1
+                    #else:
+                    #    persons[name][pos["item"]] = 1
 
 
 print("\nNumber of attendees: " + str(len(persons)))
