@@ -1,6 +1,6 @@
 all:
 	xelatex teilnehmerzettel.tex
-	pdfnup --nup 1x4 --paper a4 --no-landscape teilnehmerzettel.pdf
+	pdfnup --nup 2x4 --paper a4paper --no-landscape teilnehmerzettel.pdf
 
 
 clean:

@@ -28,7 +28,8 @@ def gen_token():
 
 def usage(file=sys.stdout):
     print("usage: %s offset number-of-participants baseurl\n"
-          "       where baseurl contains a '%%s' for the token" %
+          "       where baseurl contains a '%%s' for the token\n"
+          "       p.e. https://fragebogen.fossgis.konferenz.de/index.php/survey/index/sid/NUMBER/token/%%s" %
           os.path.basename(sys.argv[0]) , file=file)
 
 ###########################################################################
