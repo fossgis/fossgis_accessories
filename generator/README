@@ -1,0 +1,25 @@
+Anleitung
+=========
+
+In ’hintergrund.pdf‘ eine Hintergrundgraphik ablegen. Diese dient
+einerseits der Optik, andererseits soll sie die
+Fälschungssicherheit erhöhen.
+
+Zuerst mit ‘./generate-teilnehmer’ die Teilnehmertoken
+generieren. Dabei ist die Basisurl der Umfrage anzugeben, die in den
+QR-Code kodiert wird. Das ‘%s’ wird durch das Teilnehmertoken ersetzt.
+Beispiel für eine Umfrage mit 20 Teilnehmern und ID 0000000:
+
+  ./generate-teilnehmer 1 20 'https://fragebogen.fossgis-konferenz.de/index.php/survey/index/sid/0000000/token/%s'
+
+Danach mit ‘make’ die Zettel für die Teilnehmer und die Liste für
+limesurvey erzeugen. Ergebnis:
+
+┌──────────────────────────┬───────────────────────────────────────────────┐
+│ teilnehmerzettel.pdf     │ Die Teilnehmerzettel einzeln                  │
+├──────────────────────────┼───────────────────────────────────────────────┤
+│ teilnehmerzettel-nup.pdf │ Die Teilnehmerzettel, je 8 auf A4 zum Drucken │
+├──────────────────────────┼───────────────────────────────────────────────┤
+│ teilnehmer.csv           │ Teilnehmerliste zum Import für limesurvey     │
+└──────────────────────────┴───────────────────────────────────────────────┘
+

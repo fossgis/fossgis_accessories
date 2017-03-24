@@ -1,5 +1,6 @@
-\documentclass[paper=21.0cm:6.2cm, oneside, fontsize=14pt, DIV=21]{scrartcl}
+\documentclass[paper=A7, landscape, oneside, fontsize=11pt, DIV=21]{scrartcl}
 \usepackage{graphicx}
+\usepackage{color}
 \usepackage{libertine}
 \usepackage{url}
 
@@ -9,21 +10,31 @@
 \overfullrule 10pt
 
 \newcommand\participant[4]{%
-  \noindent\hbox to \linewidth{%
-    \vbox{\hsize=0.7\linewidth
-      \medskip
-      {\Huge\textbf{FOSSGIS 2017}\\
-        {\huge\textsf{\textbf{Umfrage und Auslosung}}}\par}%
-
-      \medskip
-      Teilnehmernummer: \textbf{\textsf{#2}}
-      
-      Umfrageurl: \textsf{https://domain/} 
-
-      Code: \textbf{\textsf{#3}}
-    }\hfil
-      \expandafter\includegraphics[width=3cm]{images/#3.pdf}%
+  \hbox to 0pt{%
+    \hskip -6mm%
+    \vbox to 0pt{%
+      \vskip -8mm%
+      \includegraphics[height=72mm]{hintergrund.pdf}%
+      \vss
+    }%
+    \hss
   }%
+  \valign{\hsize=5.95cm ## \vfil\cr
+    {\Huge\textbf{FOSSGIS 2017}}\\
+    {\Large\textit{\textbf{Umfrage und Auslosung}}\par}\cr
+    \hsize=3.05cm%
+    \vskip-4mm
+    \expandafter\includegraphics[width=3cm]{images/#3.pdf}%
+    \cr
+  }%
+  \par
+  \vfil%
+  Teilnehmernummer: \textbf{\textsf{\huge\ #2}}
+  
+  Umfrage: \textbf{\textsf{https://fragebogen.fossgis-konferenz.de/}} 
+  
+  Code: \textbf{\textsf{#3}}
+  \bigskip
   \eject
 }
 
