@@ -4,7 +4,8 @@
 \usepackage{graphicx,palatino}
 \usepackage{xcolor}
 \usepackage[utf8]{inputenc} 
-\usepackage{datatool} 
+\usepackage{datatool}
+\usepackage{xstring}
 \usepackage[T1]{fontenc}
 
 \renewcommand*\familydefault{\sfdefault} 
@@ -18,9 +19,9 @@
 
 \DTLsetseparator{,}
 %\DTLloaddb{CSV}{checkin_full.csv}
-\DTLloaddb{CSV}{checkin.csv}
+\DTLloadrawdb{CSV}{checkin.csv}
 \DTLsort{Produkt}{CSV}
-\DTLforeach{CSV}{\person=Name,\produkt=Produkt}
+\DTLforeach{CSV}{\person=Name\space des\space Teilnehmers,\produkt=Produkt}
 {
 
   \begin{minipage}[c]{0.28\textwidth}
@@ -63,7 +64,8 @@
     \vspace*{5mm}
 
     \begin{minipage}{0.7\textwidth}
-      \centering\bf\produkt
+%      \centering\bf\produkt
+      \centering\bf\StrBehind[2]{\produkt}{-} % remove ``Workshop X - Raum Y -'' from produkt
     \end{minipage}
 
     \vspace*{5mm}
@@ -80,7 +82,7 @@
   
   \vspace*{12mm}
   
-  \hskip 1cm Unterschrift: \rule{0.5\textwidth}{0.5pt}
+  \hskip 1cm FOSSGIS e.V. --- i. A. \rule{0.5\textwidth}{0.5pt}
   
   \newpage
 } 
