@@ -20,7 +20,7 @@
 \makeatother
 
 \newcommand{\schild}[2]{\ticket{%
-    \put(77,46){\includegraphics[width=2.3cm]{imgs/fossgis17.png}}
+    \put(77,46){\includegraphics[width=2.3cm]{../imgs/fossgis17.png}}
     
     \ifthenelse{\equal{#2}{}}{
 
@@ -54,10 +54,10 @@
 }}
 
 \newcommand{\schildfull}[7]{\ticket{%
-\put(7,60){\includegraphics[width=4cm]{imgs/fossgis.png}}%
+\put(7,60){\includegraphics[width=4cm]{../imgs/fossgis.png}}%
 \ifthenelse{\equal{#3}{528}}{
-\put(53,60){\includegraphics[width=2.7cm]{imgs/osgeo.png}}%
-\put(86,60){\includegraphics[width=1.3cm]{imgs/osm.png}}%
+\put(53,60){\includegraphics[width=2.7cm]{../imgs/osgeo.png}}%
+\put(86,60){\includegraphics[width=1.3cm]{../imgs/osm.png}}%
 }{}
 \put(7,35){\scalebox{2}{\textbf{#1}}}
 \ifthenelse{\equal{#2}{1}}{}{
@@ -68,9 +68,9 @@
 }
 \put(57,5){
 \ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.4}{WS}}
-\ifthenelse{\equal{#4}{}}{}{$\bf\cdot$\;\includegraphics[width=0.6cm]{imgs/shirt.png}\,}
-\ifthenelse{\equal{#6}{}}{}{$\bf\cdot$\,\includegraphics[width=0.7cm]{imgs/essen.png}}
-\ifthenelse{\equal{#7}{}}{}{$\bf\cdot$\;\,\includegraphics[width=0.6cm]{imgs/buch.png}}
+\ifthenelse{\equal{#4}{}}{}{$\bf\cdot$\;\includegraphics[width=0.6cm]{../imgs/shirt.png}\,}
+\ifthenelse{\equal{#6}{}}{}{$\bf\cdot$\,\includegraphics[width=0.7cm]{../imgs/essen.png}}
+\ifthenelse{\equal{#7}{}}{}{$\bf\cdot$\;\,\includegraphics[width=0.6cm]{../imgs/buch.png}}
 }
 }}
 

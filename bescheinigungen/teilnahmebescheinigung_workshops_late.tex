@@ -19,13 +19,12 @@
 
 \DTLsetseparator{,}
 %\DTLloaddb{CSV}{checkin_full.csv}
-\DTLloadrawdb{CSV}{checkin.csv}
-\DTLsort{Produkt}{CSV}
+\DTLloadrawdb{CSV}{../data/workshops_late.csv}
 \DTLforeach{CSV}{\person=Name\space des\space Teilnehmers,\produkt=Produkt}
 {
 
   \begin{minipage}[c]{0.28\textwidth}
-    \vspace{0pt}\includegraphics[width=\textwidth]{imgs/fossgis17.png}
+    \vspace{0pt}\includegraphics[width=\textwidth]{../imgs/fossgis17.png}
   \end{minipage}
   \hfill%
   \begin{minipage}[c]{0.72\textwidth}
@@ -36,7 +35,7 @@
   
   \begin{center}
     \vskip -3mm
-    \includegraphics[width=0.97\textwidth]{imgs/passau.jpg}
+    \includegraphics[width=0.97\textwidth]{../imgs/passau.jpg}
   \end{center}
   
   \begin{center}

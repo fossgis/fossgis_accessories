@@ -1,0 +1,62 @@
+
+\documentclass[a4paper, 12pt]{article}
+\usepackage[top=20mm,left=20mm,right=20mm,bottom=20mm,includefoot]{geometry}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool, etoolbox}
+\usepackage{xstring}
+\usepackage[T1]{fontenc}
+
+\renewcommand*\familydefault{\sfdefault} 
+
+\definecolor{grau}{rgb}{0.945,0.953,0.957} 
+\definecolor{blau}{rgb}{0.48,0.566,0.598} 
+
+\pagestyle{empty}
+
+\begin{document} 
+
+\DTLsetseparator{,}
+%\DTLloaddb{CSV}{checkin_full.csv}
+\DTLloadrawdb{CSV}{../data/checkin.csv}
+%\DTLsort{Produkt}{CSV}
+
+% Taken from http://tex.stackexchange.com/q/108712/5764
+\newcommand*{\uniqueclass}{}
+\newcommand{\csvlistsep}{\renewcommand{\csvlistsep}{,}}
+\DTLforeach*{CSV}{\produkt=Produkt}{%
+  \expandafter\DTLifinlist\expandafter{\produkt}{\uniqueclass}%
+  {}% do nothing, already in list
+  {% add to list
+    \ifdefempty{\uniqueclass}%
+    {\let\uniqueclass\produkt}% first element of list
+    {% append to list
+      \eappto\uniqueclass{,\produkt}%
+    }%
+  }%
+}
+
+\renewcommand{\arraystretch}{2}
+
+\newcommand{\nextrow}{}
+\renewcommand{\do}[1]{%
+  \section*{#1}
+  \renewcommand{\nextrow}{}
+  \begin{tabular}{l|l}
+    \hline \hline
+    \textbf{Name} & \textbf{Unterschrift} \hspace{8cm} \\ \hline
+    \DTLforeach{CSV}
+      {\produkt=Produkt, \person=Name\space des\space Teilnehmers}
+      {\ifnum\pdfstrcmp{#1}{\produkt}=0 
+         \eappto\nextrow{\person \noexpand& \noexpand\\ \noexpand\hline}% Collect rows
+       \fi}%
+      \nextrow % Print table rows
+    \hline
+  \end{tabular}
+  \newpage
+}
+
+\expandafter\docsvlist\expandafter{\uniqueclass}
+
+\end{document} 
