@@ -1,0 +1,89 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={190mm,277mm},top=10mm,left=10mm,includefoot]{geometry}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool}
+\usepackage{xstring}
+\usepackage[T1]{fontenc}
+
+\renewcommand*\familydefault{\sfdefault} 
+
+\definecolor{grau}{rgb}{0.945,0.953,0.957} 
+\definecolor{blau}{rgb}{0.48,0.566,0.598} 
+
+\pagestyle{empty}
+
+\begin{document} 
+
+\DTLsetseparator{,}
+%\DTLloaddb{CSV}{checkin_full.csv}
+\DTLloadrawdb{CSV}{../data/checkin.csv}
+\DTLsort{Produkt}{CSV}
+\DTLforeach{CSV}{\person=Name\space des\space Teilnehmers,\produkt=Produkt}
+{
+
+  \begin{minipage}[c]{0.28\textwidth}
+    \vspace{0pt}\includegraphics[width=\textwidth]{../imgs/fossgis17.png}
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{0.72\textwidth}
+    \fontsize{38}{38}\selectfont
+    \textcolor{grau}{\sffamily\bfseries FOSSGIS-Konferenz\\2017\,}
+    \textcolor{blau}{\sffamily\bfseries Passau\\22.--25. März 2017}
+  \end{minipage}%
+  
+  \begin{center}
+    \vskip -3mm
+    \includegraphics[width=0.97\textwidth]{../imgs/passau.jpg}
+  \end{center}
+  
+  \begin{center}
+
+    \vspace*{4mm}
+    \Huge Teilnahmebescheinigung
+    \noindent\rule{0.9\textwidth}{1pt}\\
+    
+    \vspace*{14mm}
+    
+    \large
+    
+    Auf der FOSSGIS-Konferenz 2017 in Passau hat\\
+    
+    \vspace*{5mm}
+    
+    \Huge
+    \person
+    
+    \vspace*{5mm}
+    
+    \large
+    an dem Workshop
+    
+    \vspace*{5mm}
+
+    \begin{minipage}{0.7\textwidth}
+%      \centering\bf\produkt
+      \centering\bf\StrBehind[2]{\produkt}{-} % remove ``Workshop X - Raum Y -'' from produkt
+    \end{minipage}
+
+    \vspace*{5mm}
+    
+    mit Erfolg teilgenommen.
+    
+  \end{center}
+
+
+  \vspace*{18mm}
+
+  \large
+  \hskip 1cm Passau, den 24.3.2017
+  
+  \vspace*{12mm}
+  
+  \hskip 1cm FOSSGIS e.V. --- i. A. \rule{0.5\textwidth}{0.5pt}
+  
+  \newpage
+} 
+\end{document} 
