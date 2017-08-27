@@ -1,0 +1,81 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[schilder,rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+
+%\renewcommand*\rmdefault{iwona}
+
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedtrue % Rahmen um Namensschild
+\@emptycrossmarkfalse % Falzmarken
+\@cutmarkfalse % Schnittmarken
+\makeatother
+
+\newcommand{\schild}[4]{\ticket{
+
+    % Logos Einbinden:
+    % Parameter 1 = Nachname
+    % Parameter 2 = Vorname
+    % Parameter 3 = FOSSGIS
+    % Parameter 4 = OSM Nickname
+    \put(4,58){
+%        \ifthenelse{\equal{#3}{}}{}{\includegraphics[height=1.2cm]{../imgs/fossgis.png} \hskip 0.5cm}
+%        \ifthenelse{\equal{#4}{}}{}{\includegraphics[height=1.2cm]{../imgs/osm.png}  \hskip 0.5cm}
+        \includegraphics[height=1.2cm]{../imgs/osgeo_new.png} \hskip 0.4cm
+        \includegraphics[height=1.2cm]{../imgs/fossgis.png} \hskip 0.4cm
+	\includegraphics[height=1.2cm]{../imgs/osm.png}  \hskip 0.4cm
+
+    }
+    
+    \put(4,35){
+       \begin{minipage}[c]{0.45\textwidth}
+          \centering{\fontsize{38}{45}\selectfont\textbf{#2}\par}
+          \vskip 0.2cm
+          \centering{\fontsize{33}{36}\selectfont\textbf{#1}\par}
+          % Wenn vohanden OSM-Nickname einbinden
+          \ifthenelse{\equal{#4}{}}{}{
+              \vskip 0.3cm 
+              \centering{\fontsize{18}{22}\selectfont\textbf{OpenStreetMap: #4}\par}
+          }
+        \end{minipage}
+      }
+
+    \put(3,10){
+      \noindent\rule{0.47\textwidth}{0.4pt}\\
+    }
+
+    \put(4,5){
+     \begin{minipage}[c]{0.45\textwidth}
+      \centering{\textcolor{gray}{
+        FOSSGIS e.V.
+      }
+}
+        \end{minipage}
+    }
+}}
+
+\begin{document} 
+
+\DTLsetseparator{,}
+\DTLloaddb{CSV}{personen.csv}
+%\DTLsort{Nachname}{CSV}
+\DTLforeach{CSV}{\nachname=Nachname,\vorname=Vorname,\osm=OSM,\fossgis=FOSSGIS}
+{
+  \schild{\nachname}{\vorname}{\fossgis}{\osm}
+  \schild{\nachname}{\vorname}{\fossgis}{\osm}
+} 
+\end{document} 
