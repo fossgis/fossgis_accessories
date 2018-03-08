@@ -20,7 +20,7 @@
 \makeatother
 
 \newcommand{\schild}[2]{\ticket{%
-    \put(77,46){\includegraphics[width=2.3cm]{../imgs/fossgis17.png}}
+    \put(77,46){\includegraphics[width=2.3cm]{../imgs/fossgis-konferenz.png}}
     
     \ifthenelse{\equal{#2}{}}{
 
@@ -48,7 +48,7 @@
 
     \put(55,5){
       \textcolor{gray}{
-        \textit{FOSSGIS-Konferenz 2017}
+        \textit{FOSSGIS-Konferenz 2018}
       }
     }
 }}
@@ -64,7 +64,7 @@
 \put(7,25){\scalebox{1.5}{\textbf{#2}}}
 }
 \put(7,5){\scalebox{1}{\textcolor{gray}{%
-\textit{FOSSGIS Konferenz 2017}}}
+\textit{FOSSGIS Konferenz 2018}}}
 }
 \put(57,5){
 \ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.4}{WS}}
@@ -80,8 +80,9 @@
 %\DTLloaddb{CSV}{pretix.csv}
 \DTLloaddb{CSV}{pretix_full.csv}
 %\DTLsort{Nachname}{CSV}
-\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=242,\shirt=534,\count=WSCount,
-                 \dialoge=316,\tagungsband=319}
+%\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=242,\shirt=534,\count=WSCount,
+          %       \dialoge=316,\tagungsband=319}
+\DTLforeach{CSV}{\person=Name,\nickname=242}
 {
   \schild{\person}{\nickname}
   \schild{\person}{\nickname}
