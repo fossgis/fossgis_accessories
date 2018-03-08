@@ -19,7 +19,7 @@ def extractSurname(name):
 f = open('/tmp/pretixdata.json', 'r');
 data = json.load(f);
 
-print(json.dumps(data, indent=4))
+#print(json.dumps(data, indent=4))
 
 items = {}
 for type in data["event"]["items"]:
@@ -42,15 +42,15 @@ for order in data["event"]["orders"]:
             names.append(pos["attendee_name"])
             persons[pos["attendee_name"]] = {0: pos["variation"]};
 
-    #print("Names: ")
-    #print(names)
+    print("Names: ")
+    print(names)
     
     for pos in order["positions"]:
         #print(pos)
         if pos["attendee_name"]:
             name = pos["attendee_name"]
             if not name in persons:
-                print(name + "has no ticket?!?")
+                print(name + " has no ticket?!?")
                 continue
             if pos["answers"]:
                 persons[name][pos["item"]] = pos["answers"][0]["answer"]
