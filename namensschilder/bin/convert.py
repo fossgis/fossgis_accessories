@@ -16,7 +16,7 @@ def extractSurname(name):
     return split[-1]
 
 
-f = open('/tmp/pretixdata.json', 'r');
+f = open('pretixdata.json', 'r');
 data = json.load(f);
 
 #print(json.dumps(data, indent=4))
@@ -31,14 +31,16 @@ for type in data["event"]["items"]:
 print("Items:")
 for it in items:
     print(str(it) + " -> " + items[it])
-# 242 is FOSSGIS-Konferenzticket
+
+# IDs for FOSSGIS-Konferenzticket
+ids = [8821, 8822, 8826, 8827, 8830, 8835]
 
 persons = {}
 for order in data["event"]["orders"]:
     #print("Next order:")
     names = []
     for pos in order["positions"]:
-        if pos["item"] == 242 and pos["attendee_name"]:
+        if pos["item"] in ids and pos["attendee_name"]:
             names.append(pos["attendee_name"])
             persons[pos["attendee_name"]] = {0: pos["variation"]};
 
@@ -73,7 +75,7 @@ print("\nNumber of attendees: " + str(len(persons)))
 #print(persons)
 
 print("\nCSV:\n")
-f = open('/tmp/pretixdata.csv', 'w');
+f = open('pretix.csv', 'w');
 
 # print header:
 f.write("Name;Nachname;Variant;WSCount")
