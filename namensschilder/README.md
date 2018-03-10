@@ -12,9 +12,12 @@ Studierendenticket,...). Heraus fällt pretix.csv
 
 Als zweiter Schritt muss mit pdflatex namensschilder.tex ein PDF mit
 den Namensschildern erzeugt werden. Das tex kann bei Bedarf angepasst
-werden. Aktuell wird pro Zeile der Name zwei mal ausgegeben, damit man
-das Namensschild knicken kann und hinten und vorne beschriftet ist und
-man in die Mitte noch Zusatzzettel (z.B. die Tokens für die Umfrage)
+werden, vor allem muss aber in der Zeile mit DTLforeach die
+auszuwählenden Spaltennamen angepasst werden.
+
+Aktuell wird pro Zeile der Name zwei mal ausgegeben, damit man das
+Namensschild knicken kann und hinten und vorne beschriftet ist und man
+in die Mitte noch Zusatzzettel (z.B. die Tokens für die Umfrage)
 einlegen kann.
 
 Achtung: Das lesen der CSV-Datei und Erstellen des PDFs dauert
