@@ -98,7 +98,7 @@ for person in persons:
             
     for it in items:
         if it in dict:
-            out = str(dict[it]).replace("\r", "").replace("\n", "\\n").replace(";", "")
+            out = str(dict[it]).replace("\r", "").replace("\n", "\\n").replace(";", "").replace("_", "\\_")
             f.write(";" + out)
         else:
             f.write(";")
