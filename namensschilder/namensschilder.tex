@@ -8,10 +8,16 @@
 \usepackage{datatool} 
 \usepackage{ifthen}
 
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+
+
  %\overfullrule 10pt
  \hyphenpenalty 1000
  \exhyphenpenalty 10000
- 
+
+%\renewcommand*\rmdefault{iwona}
+
 \renewcommand{\ticketdefault}{}%
 \makeatletter
 \@boxedtrue % Rahmen um Namensschild
@@ -20,11 +26,11 @@
 \makeatother
 
 \newcommand{\schild}[2]{\ticket{%
-    \put(77,46){\includegraphics[width=2.3cm]{../imgs/fossgis-konferenz.png}}
+    \put(83,51){\includegraphics[width=2.0cm]{../imgs/fossgis-konferenz.png}}
     
     \ifthenelse{\equal{#2}{}}{
 
-      \put(4,30){
+      \put(4,35){
         \begin{minipage}[c]{0.45\textwidth}
           \centering{\fontsize{38}{43}\selectfont\textbf{#1}\par}
         \end{minipage}
@@ -36,35 +42,47 @@
         \begin{minipage}[c]{0.45\textwidth}
           \centering{\fontsize{38}{45}\selectfont\textbf{#1}\par}
           \vskip 0.2cm
-          \centering{\fontsize{33}{36}\selectfont\textbf{(#2)}\par}
+          \centering{\fontsize{30}{38}\selectfont\textbf{#2}\par}
         \end{minipage}
       }
     }
 
 
-    \put(3,10){
-      \noindent\rule{0.47\textwidth}{0.4pt}\\
-    }
+  %  \put(3,10.5){
+   %   \noindent\rule{0.47\textwidth}{0.4pt}\\
+    %}
 
-    \put(55,5){
-      \textcolor{gray}{
-        \textit{FOSSGIS-Konferenz 2018}
-      }
+    %\put(28,66.5){ %FOSSGIS-Konferenz Bonn 2018
+   % \put(62,66.5){
+   %   \textcolor{gray}{
+   %     \textit{Bonn}
+   %   }
+   % }
+
+    \put(2,59.5){
+      \includegraphics[width=7.0cm,height=1.1cm]{../imgs/skyline.png}
+    }	
+
+    \put(0.8,2){
+      \includegraphics[height=0.8cm]{../imgs/fossgis.png} \hskip 0.05cm
+      \includegraphics[height=0.8cm]{../imgs/osm.png}  \hskip 0.1cm
+      \includegraphics[height=0.8cm]{../imgs/uni.png} \hskip 0.1cm
+      \includegraphics[height=0.8cm]{../imgs/osgeo.png} \hskip 0.05cm
     }
 }}
 
 \newcommand{\schildfull}[7]{\ticket{%
-\put(7,60){\includegraphics[width=4cm]{../imgs/fossgis.png}}%
+\put(10,54){\includegraphics[width=4cm]{../imgs/fossgis.png}}%
 \ifthenelse{\equal{#3}{528}}{
-\put(53,60){\includegraphics[width=2.7cm]{../imgs/osgeo.png}}%
-\put(86,60){\includegraphics[width=1.3cm]{../imgs/osm.png}}%
+put(53,54){\includegraphics[width=2.7cm]{../imgs/osgeo.png}}%
+put(86,54){\includegraphics[width=1.3cm]{../imgs/osm.png}}%
 }{}
 \put(7,35){\scalebox{2}{\textbf{#1}}}
 \ifthenelse{\equal{#2}{1}}{}{
 \put(7,25){\scalebox{1.5}{\textbf{#2}}}
 }
 \put(7,5){\scalebox{1}{\textcolor{gray}{%
-\textit{FOSSGIS Konferenz 2018}}}
+       \textit{FOSSGIS Konferenz 2018}}}
 }
 \put(57,5){
 \ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.4}{WS}}
@@ -89,3 +107,25 @@
   %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
 } 
 \end{document} 
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
+\grid
