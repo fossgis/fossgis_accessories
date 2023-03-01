@@ -17,12 +17,17 @@ Studierendenticket,...). Heraus fällt pretix.csv
 ./convert.py
 
   IDs for FOSSGIS-Konferenzticket (diese aendern sich jedes Jahr und müssen angepasst werden)
-  ids = [8821, 8822, 8826, 8827, 8830, 8835]
-
+  ids = [268184,268185,268218,268218,268218,270039,272120,272122,272123,271553]
 
 3. namensschilder.pdf erzeugen
 Als nächster Schritt muss mit pdflatex namensschilder.tex ein PDF mit
 den Namensschildern erzeugt werden. 
+
+Systemvoraussetzungen
+sudo apt install texlive-latex-base
+sudo apt install texlive-latex-extra
+sudo apt-get install texlive-font-utils
+sudo apt-get install texlive-fonts-extra
 
 pdflatex namensschilder.tex
 
