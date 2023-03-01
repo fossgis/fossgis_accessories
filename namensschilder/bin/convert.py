@@ -33,7 +33,12 @@ for it in items:
     print(str(it) + " -> " + items[it])
 
 # IDs for FOSSGIS-Konferenzticket
-ids = [8821, 8822, 8826, 8827, 8830, 8835]
+#2023  
+# ids = [268184,268185,268218,268218,268218,270039,272120,272122,272123]
+# mit 271553 OSM Samstag
+# ohne Onlineticket 274385,288025,288025,288025,288036
+
+ids = [268184,268185,268218,268218,268218,270039,272120,272122,272123,271553]
 
 persons = {}
 for order in data["event"]["orders"]:

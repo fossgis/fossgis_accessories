@@ -8,10 +8,16 @@
 \usepackage{datatool} 
 \usepackage{ifthen}
 
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+
+
  %\overfullrule 10pt
  \hyphenpenalty 1000
  \exhyphenpenalty 10000
- 
+
+%\renewcommand*\rmdefault{iwona}
+
 \renewcommand{\ticketdefault}{}%
 \makeatletter
 \@boxedtrue % Rahmen um Namensschild
@@ -19,7 +25,7 @@
 \@cutmarkfalse % Schnittmarken
 \makeatother
 
-\newcommand{\schild}[2]{\ticket{%
+\newcommand{\schildalt}[2]{\ticket{%
     \put(77,46){\includegraphics[width=2.3cm]{../imgs/fossgis-konferenz.png}}
     
     \ifthenelse{\equal{#2}{}}{
@@ -48,44 +54,51 @@
 
     \put(55,5){
       \textcolor{gray}{
-        \textit{FOSSGIS-Konferenz 2018}
+        \textit{2023}
       }
     }
 }}
 
-\newcommand{\schildfull}[7]{\ticket{%
-\put(7,60){\includegraphics[width=4cm]{../imgs/fossgis.png}}%
-\ifthenelse{\equal{#3}{528}}{
-\put(53,60){\includegraphics[width=2.7cm]{../imgs/osgeo.png}}%
-\put(86,60){\includegraphics[width=1.3cm]{../imgs/osm.png}}%
-}{}
+\newcommand{\schild}[2]{\ticket{%
+\put(5,50){\includegraphics[width=9cm]{../imgs/fossgis_konferenz_oben.png}}%
 \put(7,35){\scalebox{2}{\textbf{#1}}}
 \ifthenelse{\equal{#2}{1}}{}{
-\put(7,25){\scalebox{1.5}{\textbf{#2}}}
+%\put(7,25){\scalebox{1.5}{\textbf{#2}}}
 }
-\put(7,5){\scalebox{1}{\textcolor{gray}{%
-\textit{FOSSGIS Konferenz 2018}}}
+
+\put(5,5){\includegraphics[width=9cm]{../imgs/fossgis_konferenz_unten.png}}%
+
+}}
+
+\newcommand{\schildfull}[7]{\ticket{%
+\put(5,50){\includegraphics[width=9cm]{../imgs/fossgis_konferenz_oben.png}}%
+
+\put(7,35){\scalebox{2}{\textbf{#1}}}
+\ifthenelse{\equal{#2}{1}}{}{
+%\put(7,25){\scalebox{1.5}{\textbf{#2}}}
 }
-\put(57,5){
-\ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.4}{WS}}
-\ifthenelse{\equal{#4}{}}{}{$\bf\cdot$\;\includegraphics[width=0.6cm]{../imgs/shirt.png}\,}
-\ifthenelse{\equal{#6}{}}{}{$\bf\cdot$\,\includegraphics[width=0.7cm]{../imgs/essen.png}}
-\ifthenelse{\equal{#7}{}}{}{$\bf\cdot$\;\,\includegraphics[width=0.6cm]{../imgs/buch.png}}
+
+%\put(5,5){\includegraphics[width=9cm]{../imgs/fossgis_konferenz_unten.png}}%
+
+\put(5,15){
+\ifthenelse{\equal{#5}{0}}{}{\bf$\cdot$\;\scalebox{1.0}{WS}}
+\ifthenelse{\equal{#4}{}}{}{$\bf\cdot$\;\includegraphics[width=0.3cm]{../imgs/shirt.png}\,}
+\ifthenelse{\equal{#6}{}}{}{$\bf\cdot$\,\includegraphics[width=0.3cm]{../imgs/essen.png}}
+\ifthenelse{\equal{#7}{}}{}{$\bf\cdot$\;\,\includegraphics[width=0.3cm]{../imgs/buch.png}}
 }
 }}
 
 \begin{document} 
 
 \DTLsetseparator{;}
-%\DTLloaddb{CSV}{pretix.csv}
 \DTLloaddb{CSV}{bin/pretix.csv}
-%\DTLsort{Nachname}{CSV}
-%\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=242,\shirt=534,\count=WSCount,
-          %       \dialoge=316,\tagungsband=319}
-\DTLforeach{CSV}{\person=Name,\nickname=8835}
+\DTLsort{Nachname}{CSV}
+\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=268184,\shirt=274773,\count=WSCount,\dialoge=271556,\tagungsband=271557}
+%\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
   \schild{\person}{\nickname}
-  \schild{\person}{\nickname}
-  %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
+  \schild{\person}{\nickname}  
+  %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}  
+  %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}    
 } 
 \end{document} 
