@@ -1,0 +1,58 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[schilder,rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+
+%\renewcommand*\rmdefault{iwona}
+
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedtrue % Rahmen um Namensschild
+\@emptycrossmarktrue % Falzmarken
+\@cutmarktrue % Schnittmarken
+\makeatother
+
+\newcommand{\schildinnen}[6]{\ticket{%
+% das fossgis2023_background.pdf liegt in A6 quer vor %
+% und kann so komplett als Hintergrund Bild genutzt werden % 
+%\put(0,0){\includegraphics[width=10.5cm]{../imgs/fossgis2023_background.pdf}}
+\put(7,34){
+  %\scalebox{2}{\textbf{#1}}
+  % in der \parbox werden auch lange namen umgebrochen
+  \parbox{9cm}{
+  	Name \textbf{#1}\\
+  	Type \textbf{#2}\\
+  	T-Shirt \textbf{#3}\\
+  	Count \textbf{#4}\\
+  	Dialoge \textbf{#5}\\
+  	Tagungsband \textbf{#6}\\
+  }
+  }
+}}
+
+
+\begin{document} 
+\DTLsetseparator{;}
+\DTLloaddb{CSV}{pretix_example.csv}
+\DTLsort{Nachname}{CSV}
+\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=268184,\shirt=274773,\count=WSCount,\dialoge=271556,\tagungsband=271557}
+%\DTLforeach{CSV}{\person=Name,\nickname=268184}
+{
+  \schildinnen{\person}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
+  %\schildinnen{\person}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
+  \ticket{}
+} 
+\end{document} 
