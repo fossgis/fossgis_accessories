@@ -5,3 +5,4 @@
 imgs/signature.png
 pretix.csv
 pretixdata.json
+*.synctex.gz
