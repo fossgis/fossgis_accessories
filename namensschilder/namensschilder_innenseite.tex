@@ -32,13 +32,15 @@
 \put(7,34){
   %\scalebox{2}{\textbf{#1}}
   % in der \parbox werden auch lange namen umgebrochen
-  \parbox{9cm}{
-  	Name \textbf{#1}\\
-  	Type \textbf{#2}\\
-  	T-Shirt \textbf{#3}\\
-  	Count \textbf{#4}\\
-  	Dialoge \textbf{#5}\\
-  	Tagungsband \textbf{#6}\\
+  \parbox{10cm}{
+   % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
+    \color{gray} 
+  	Name: #1\\
+  	Type: #2\\
+  	T-Shirt: #3\\
+  	Count: #4\\
+  	Dialoge: #5\\
+  	Tagungsband: #6\\
   }
   }
 }}

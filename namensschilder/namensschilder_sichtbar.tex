@@ -1,6 +1,6 @@
 
 \documentclass[a4paper, 12pt]{letter}
-\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm, bottom=0mm, top=0mm]{geometry}
 \usepackage[schilder,rowmode]{ticket}
 \usepackage{graphicx,palatino}
 \usepackage{xcolor}
@@ -19,17 +19,18 @@
 
 \renewcommand{\ticketdefault}{}%
 \makeatletter
-\@boxedtrue % Rahmen um Namensschild
+\@boxedfalse % Rahmen um Namensschild
 \@emptycrossmarktrue % Falzmarken
-\@cutmarktrue % Schnittmarken
+\@cutmarktrue
+\@crossmarktrue % Schnittmarken
 \makeatother
 
 
 \newcommand{\schild}[2]{\ticket{%
 % das fossgis2023_background.pdf liegt in A6 quer vor %
 % und kann so komplett als Hintergrund Bild genutzt werden % 
-\put(0,0){\includegraphics[width=10.5cm]{../imgs/2023/fossgis2023_background.pdf}}
-\put(7,34){
+\put(0,0){\includegraphics[width=105mm]{../imgs/2023/fossgis2023_background.pdf}}
+\put(7,30){
   %\scalebox{2}{\textbf{#1}}
   % in der \parbox werden auch lange namen umgebrochen
   \parbox{9cm}{\centering \Huge \textbf{#1}}
@@ -43,13 +44,12 @@
 % \include{definitions}
 \DTLsetseparator{;}
 \DTLloaddb{CSV}{pretix_example.csv}
+%\DTLloaddb{CSV}{bin/pretix_example.csv}
+
 \DTLsort{Nachname}{CSV}
-\DTLforeach{CSV}{\person=Name,\type=Variant,\nickname=268184,\shirt=274773,\count=WSCount,\dialoge=271556,\tagungsband=271557}
-%\DTLforeach{CSV}{\person=Name,\nickname=268184}
+\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
   \schild{\person}{\nickname}
   \schild{\person}{\nickname}  
-  %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}  
-  %\schildfull{\person}{\nickname}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}    
 } 
 \end{document} 

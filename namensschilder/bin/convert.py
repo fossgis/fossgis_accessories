@@ -16,7 +16,7 @@ def extractSurname(name):
     return split[-1]
 
 
-f = open('pretixdata.json', 'r');
+f = open('2023_pretixdata.json', 'r');
 data = json.load(f);
 
 #print(json.dumps(data, indent=4))
@@ -80,7 +80,7 @@ print("\nNumber of attendees: " + str(len(persons)))
 #print(persons)
 
 print("\nCSV:\n")
-f = open('pretix.csv', 'w');
+f = open('pretix.csv', 'w')
 
 # print header:
 f.write("Name;Nachname;Variant;WSCount")
