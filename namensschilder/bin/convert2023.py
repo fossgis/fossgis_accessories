@@ -4,6 +4,7 @@ import collections
 import csv
 import json
 import pathlib
+import random
 import re
 import sys
 from typing import Dict, List
@@ -11,16 +12,21 @@ from typing import Dict, List
 PATH_JSON = '2023_pretixdata.json'
 PATH_BADGE_CSV = 'badges.csv'
 
-PATH_JSON = pathlib.Path(PATH_JSON).resolve()
-PATH_BADGE_CSV = pathlib.Path(PATH_BADGE_CSV).resolve()
-PATH_ITEM_CSV = PATH_BADGE_CSV.parent / re.sub(r'\.csv$', '.Items.csv', PATH_BADGE_CSV.name)
-
-CSV_LIMIT = -1
-# Auflistung IDs für Workshop Tickets
-#
-# hier ggf. eine Liste mit order codes nutzen um nur selektiv badges zu erstellen
+# hier ggf. eine Liste mit order codes nutzen um selektiv badges zu erstellen
+# https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 # ORDER_CODES = ['M7UNC', 'VXWKS']
 ORDER_CODES = None
+
+# if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
+# Gut um schnell zu testen ob das PDF sinnvoll aussieht
+CSV_LIMIT: int = -1
+
+# if True -> generiert ein Pseudo-CSV mit Max & Maria Musterfrau data
+PSEUDODATA: bool = False
+
+# Auflistung IDs für Workshop Tickets
+#
+
 
 TICKET_IDs = [
     272120,  # Konferenzticket Beitragende
@@ -63,6 +69,12 @@ EXKURSIONEN_IDs = [
     296852,  # Exkursion zur Kartensammlung der Staatsbibliothek zu Berlin (Samstag, 10 Uhr)
     296853,  # Exkursion zur Campus Adlershof (Freitag, 16:30 Uhr)
 ]
+
+# END SETTINGS
+
+PATH_JSON = pathlib.Path(PATH_JSON).resolve()
+PATH_BADGE_CSV = pathlib.Path(PATH_BADGE_CSV).resolve()
+PATH_ITEM_CSV = PATH_BADGE_CSV.parent / re.sub(r'\.csv$', '.Items.csv', PATH_BADGE_CSV.name)
 
 
 class BadgeInfo(object):
@@ -120,6 +132,9 @@ def extractSurname(name: str) -> str:
     split = name.split(" ")
     return split[-1]
 
+def extractFirstName(name: str) -> str:
+    name = normalize(name)
+    return name.split(' ')[0]
 
 # print(json.dumps(data, indent=4))
 
@@ -163,6 +178,43 @@ def writeItems(items: Dict[int, str], path_csv: pathlib.Path):
         for key, value in items.items():
             writer.writerow(dict(ItemID=key, Name=value))
 
+def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
+    names = ['Max Mustermann', 'Maria Musterfrau',
+             'Max Power', 'Wiener Schnitzel mit Kartoffelsalat',
+             'Erwin Germin', 'Arne-Unhold Unterherrlich-Obermeier']
+    letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    workshops = ['Workshop 1', 'Workshop 2 mit langen Namen ärgerlichen Sonderzeichen',
+                'Workshop 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
+
+    exkursionen = ['Exkursion 1', 'Exkursionorkshop 2 mit langen Namen ärgerlichen Sonderzeichen',
+                'Exkursion 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
+
+    tickets = ['Konferenzticket Beitragende', 'Konferenzticket Community', 'Konferenzticket - reduzierter Preis',
+               'Konferenzticket fÃ¼r Helfende']
+
+
+    tshirts = []
+    for schnitt in ['tailliert geschnitten','gerade geschnitten']:
+        for size in ['M','L','XL','2XL', '3XL']:
+            tshirts.append(f'{schnitt} - {size}')
+
+    BADGES = {}
+
+    for name in names:
+        badge = BadgeInfo()
+        badge.name = name
+        badge.order = ''.join(random.sample(letters, 5))
+        badge.nachname = extractSurname(name)
+        badge.tshirt = random.choice(tshirts)
+        badge.ticket = random.choice(tickets)
+        badge.av = random.choice([True, False])
+        badge.osm_samstag = random.choice([True, False])
+        badge.osm_name = extractFirstName(name).lower()
+        badge.mail = f'{badge.osm_name}{badge.nachname.lower()}@nomail.xyz'
+        badge.workshops = random.sample(workshops, random.choice(range(len(workshops))))
+        badge.exkursionen = random.sample(workshops, random.choice(range(len(exkursionen))))
+        BADGES[name] = badge
+    return BADGES
 
 def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
     BADGES = {}
@@ -285,30 +337,54 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
             for k in list(data.keys()):
                 v = data[k]
                 if isinstance(v, list):
-                    data[k] = f'\\\\ '.join(v)
+                    latex = f'{len(v)}'
+                    if len(v) > 0:
+                        if True:
+                            latex += r'\\ -- ' + r' \\ -- '.join(v)
+                        else:
+                            latex += r' \begin{itemize} '
+                            latex += r' \item ' + r' \item '.join(v)
+                            latex += r' \end{itemize} '
+                    data[k] = latex
+                if k == 'name':
+                    # Füge bei sehr langen namen ein Leerzeichen ein
+                    # damit auf dem Badge ein Zeilenumbruch entsteht
+                    parts = re.split(r'[ ]+', v)
+                    for i in range(len(parts)):
+                        part = parts[i]
+                        if len(part) > 20:
+                            parts[i] = re.sub('-', '- ', part)
+                    data[k] = ' '.join(parts)
             writer.writerow(data)
 
             cnt += 1
 
 
 if __name__ == '__main__':
-    # 1. lese JSON
-    with open(PATH_JSON, 'r', encoding='utf-8') as f:
-        jsonData = json.load(f)
 
-    # 2. lese &  schreibe items + variations aka Dinge die gebucht werden können
-    items = readEventItems(jsonData)
-    questions = readEventQuestions(jsonData)
-    print("Items:")
-    for key, value in items.items():
-        print(f'{key}, # {value}')
-    writeItems(items, PATH_ITEM_CSV)
+    if PSEUDODATA:
+        print('Create Badges with Pseudo-Data')
+        badges = readPseudoBadgeInfos()
+    else:
+        # 1. lese JSON
+        with open(PATH_JSON, 'r', encoding='utf-8') as f:
+            jsonData = json.load(f)
 
-    print('\nQuestions:')
-    for key, value in questions.items():
-        print(f'{key}, #{value}')
+        # 2. lese &  schreibe items + variations aka Dinge die gebucht werden können
+        items = readEventItems(jsonData)
+        questions = readEventQuestions(jsonData)
+        print("Items:")
+        for key, value in items.items():
+            print(f'{key}, # {value}')
+        writeItems(items, PATH_ITEM_CSV)
 
-    # 3. schreibe badge CSV
-    badges = readBadgeInfos(jsonData)
+        print('\nQuestions:')
+        for key, value in questions.items():
+            print(f'{key}, #{value}')
+
+        # 3. Lese Badge Data
+        badges = readBadgeInfos(jsonData)
+    # 4. Schreibe badge CSV
+
     writeBadgeCsv(badges, PATH_BADGE_CSV)
     print("\nNumber of attendees: " + str(len(badges)))

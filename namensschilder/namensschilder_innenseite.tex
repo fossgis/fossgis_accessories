@@ -10,7 +10,8 @@
 
 \usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
 \usepackage[T1]{fontenc}
-
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=5mm}
 
  %\overfullrule 10pt
  \hyphenpenalty 1000
@@ -30,7 +31,8 @@
   % in der \parbox werden auch lange namen umgebrochen
   \parbox{8.5cm}{
    % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
-    \color{gray} 
+    \color{gray} \raggedright \small
+    
     %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
 	Order: #1 \\  	
   	Name: #2 \\
@@ -43,13 +45,13 @@
 }}
 
 \newcommand{\schildinnenrechts}[2]{\ticket{%
-\put(8,50){
+\put(2,50){
   % in der \parbox werden auch lange namen umgebrochen
-  \parbox{8.5cm}{
+  \parbox{90mm}{
    % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
-    \color{gray} 
+    \color{gray} \raggedright \small
     %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-    Workshops: #1 \\  	
+    Workshops: #1 \\ 
   	Exkursionen: #2
   }
   }

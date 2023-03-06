@@ -30,16 +30,16 @@
 % das fossgis2023_background.pdf liegt in A6 quer vor %
 % und kann so komplett als Hintergrund Bild genutzt werden % 
 \put(0,0){\includegraphics[width=105mm]{../imgs/2023/fossgis2023_background.pdf}}
-\put(7,30){
-  %\scalebox{2}{\textbf{#1}}
-  % in der \parbox werden auch lange namen umgebrochen
-  \parbox{9cm}{\centering \Huge \textbf{#1} 
+\put(5mm,30mm){
+  % in der \parbox werden lange Namen umgebrochen
+  % \centering mit \raggedleft oder \raggedright erstetze um zu sehen w
+  \parbox{93mm}{\centering \Huge \textbf{#1} 
 		}
   
   }
-\put(7,45){\parbox{9cm}{\raggedleft \small
-		\ifthenelse{\equal{#2}{True}}{AV}{}
-		\ifthenelse{\equal{#3}{True}}{OSM}{}
+\put(5mm,45mm){\parbox{93mm}{\raggedleft \small
+		\ifthenelse{\equal{#2}{True}}{AV}{ }
+		\ifthenelse{\equal{#3}{True}}{OSM}{ }
 
 }}
 }}
