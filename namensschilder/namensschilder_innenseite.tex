@@ -7,11 +7,15 @@
 \usepackage[utf8]{inputenc} 
 \usepackage{datatool} 
 \usepackage{ifthen}
-
+\usepackage{ngerman}
 \usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
 \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[normalem]{ulem}
 \usepackage{enumitem}
 \setlist[itemize]{leftmargin=5mm}
+\setlist{nosep}
+
 
  %\overfullrule 10pt
  \hyphenpenalty 1000
@@ -26,7 +30,15 @@
 \@cutmarktrue % Schnittmarken
 \makeatother
 
-\newcommand{\schildinnenlinks}[6]{\ticket{
+\newcommand{\striked}[3]{
+	\ifthenelse{\equal{#3}{#2}}{
+		\sout{#1}	
+	}{
+		#1 #2	
+	}
+}
+
+\newcommand{\schildinnenlinks}[7]{\ticket{
 \put(8,50){
   % in der \parbox werden auch lange namen umgebrochen
   \parbox{8.5cm}{
@@ -38,8 +50,12 @@
   	Name: #2 \\
   	Mail: #3 \\
   	Ticket: #4 \\  	
-  	T-Shirt: #5 \\
-  	Essen: #6
+  	%Tagungsband: \ifthenelse{\equal{#5}{True}}{Ja}{---------} \\
+  	\striked{Tagungsband:}{#5}{False} \\
+  	\striked{T-Shirt:}{#6}{} \\
+  	\striked{Essen:}{#7}{} \\
+%  	T-Shirt: \ifthenelse{\equal{#6}{}}{---------}{#6} \\
+%  	Essen: \ifthenelse{\equal{#7}{}}{---------}{#7} \\
   }
   }
 }}
@@ -52,7 +68,9 @@
     \color{gray} \raggedright \small
     %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
     Workshops: #1 \\ 
-  	Exkursionen: #2
+  	Exkursionen: #2 \\
+  	%\begin{itemize}  \item Orchestrierung einer GDI über Docker \item Mapbender - Einstieg in den Aufbau von WebGIS-Anwendungen \item React basierte WebGIS Clients mit MapComponents \& MapLibre-gl \end{itemize}
+  	%\begin{itemize} \item item1 \item 2\end{itemize}
   }
   }
 }}
@@ -60,16 +78,17 @@
 \begin{document} 
 \DTLsetseparator{;}
 \DTLloaddb{CSV}{bin/badges.csv}
+%\DTLloadrawdb{CSV}{bin/badges.csv}
 \DTLsort{nachname}{CSV}
 
 % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
 % essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
 \DTLforeach{CSV}{\order=order, \name=name,\type=ticket,\tshirt=tshirt,\mail=mail,
-\av=av,\essen=essen,\ws=workshops, \ex=exkursionen}
+\av=av,\essen=essen,\ws=workshops, \ex=exkursionen, \tb=tb}
 %\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
  %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-  \schildinnenlinks{\order}{\name}{\mail}{\type}{\tshirt}{\essen}
+  \schildinnenlinks{\order}{\name}{\mail}{\type}{\tb}{\tshirt}{\essen}
   \schildinnenrechts{\ws}{\ex}
   %\ticket{}
 } 

@@ -16,6 +16,7 @@ PATH_BADGE_CSV = 'badges.csv'
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 # ORDER_CODES = ['M7UNC', 'VXWKS']
 ORDER_CODES = None
+#ORDER_CODES = ['WAPK9']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
@@ -126,6 +127,30 @@ def normalize(name: str) -> str:
         name = name[:name.find(" (")]
     return name
 
+# escape LaTeX characters
+# credits to https://stackoverflow.com/questions/16259923/how-can-i-escape-latex-special-characters-inside-django-templates
+conv = {
+    '&': r'\&',
+    '%': r'\%',
+    '$': r'\$',
+    '#': r'\#',
+    '_': r'\_',
+    '{': r'\{',
+    '}': r'\}',
+    '~': r'\textasciitilde{}',
+    '^': r'\^{}',
+    '\\': r'\textbackslash{}',
+    '<': r'\textless{}',
+    '>': r'\textgreater{}',
+}
+rx_tex_escape = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+
+def tex_escape(text):
+    """
+    :param text: a plain text message
+    :return: the message escaped to appear correctly in LaTeX
+    """
+    return rx_tex_escape.sub(lambda match: conv[match.group()], text)
 
 def extractSurname(name: str) -> str:
     name = normalize(name)
@@ -183,15 +208,18 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
              'Max Power', 'Wiener Schnitzel mit Kartoffelsalat',
              'Erwin Germin', 'Arne-Unhold Unterherrlich-Obermeier']
     letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    workshops = ['Workshop 1', 'Workshop 2 mit langen Namen ärgerlichen Sonderzeichen',
-                'Workshop 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
+    workshops = ['Workshop 1',
+                 'Workshop 2 mit langen Namen ärgerlichen Sonderzeichen',
+                 'Workshop 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
 
-    exkursionen = ['Exkursion 1', 'Exkursionorkshop 2 mit langen Namen ärgerlichen Sonderzeichen',
-                'Exkursion 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
+    exkursionen = ['Exkursion 1',
+                   'Exkursion 2 mit langen Namen ärgerlichen Sonderzeichen',
+                   'Exkursion 3 mit äußerst langem Namen und CSV zerstörenden ;:,\t Zeichen']
 
     tickets = ['Konferenzticket Beitragende', 'Konferenzticket Community', 'Konferenzticket - reduzierter Preis',
                'Konferenzticket fÃ¼r Helfende']
 
+    essen = ['Vegan', 'Vegetarisch', 'Fleisch/Fisch']
 
     tshirts = []
     for schnitt in ['tailliert geschnitten','gerade geschnitten']:
@@ -200,19 +228,24 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     BADGES = {}
 
+    rnd = lambda : random.choice([True, False])
+
     for name in names:
         badge = BadgeInfo()
         badge.name = name
         badge.order = ''.join(random.sample(letters, 5))
         badge.nachname = extractSurname(name)
-        badge.tshirt = random.choice(tshirts)
+        badge.tshirt = random.choice(tshirts) if rnd() else None
         badge.ticket = random.choice(tickets)
         badge.av = random.choice([True, False])
+        badge.tb = random.choice([True, False])
+        badge.tb_adresse = f'Pseudo Adresses {badge.name}'
         badge.osm_samstag = random.choice([True, False])
         badge.osm_name = extractFirstName(name).lower()
         badge.mail = f'{badge.osm_name}{badge.nachname.lower()}@nomail.xyz'
-        badge.workshops = random.sample(workshops, random.choice(range(len(workshops))))
-        badge.exkursionen = random.sample(workshops, random.choice(range(len(exkursionen))))
+        badge.workshops = random.sample(workshops, random.choice(range(len(workshops)))) if rnd() else []
+        badge.exkursionen = random.sample(exkursionen, random.choice(range(len(exkursionen)))) if rnd() else []
+        badge.essen = random.choice(essen) if rnd() else None
         BADGES[name] = badge
     return BADGES
 
@@ -230,9 +263,10 @@ def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
 
         orderCode = order['code']  # z.B. "LSVKC"
         status = order['status']
-        if status != 'p':  # p = payed, s = storniert
-            # nur für bezahlte Orders erstellen
+        # p = payed, s = storniert, n = nicht bezahlt, c = canceled
+        if status in ['s', 'c']:
             continue
+        assert status in ['p', 'n'], f'unhandled status {status}'
 
         if isinstance(ORDER_CODES, list) and orderCode not in ORDER_CODES:
             continue
@@ -290,9 +324,9 @@ def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
                 elif itemID == 274775:  # Helfer T-Shirt:
                     badge.tshirt = variationName
                 elif itemID == 271557:  # Ich möchte einen Tagungsband erhalten
-                    s = ""
+                    badge.tb = True
                 elif itemID == 73483:  # Ihre vollstÃ¤ndige Versandadresse fÃ¼r gedruckten Tagungsband:
-                    s = ""
+                    badge.tb_adresse = ''
                 elif itemID == 271558:  # Ich möchte eine Teilnehmer:innenliste erhalten
                     badge.tl_erhalten = True
                 elif itemID in [274773, 281276, 275242]:  # Mittagessen
@@ -339,22 +373,27 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
                 if isinstance(v, list):
                     latex = f'{len(v)}'
                     if len(v) > 0:
-                        if True:
+                        v = [tex_escape(line) for line in v]
+                        if False:
                             latex += r'\\ -- ' + r' \\ -- '.join(v)
                         else:
+                            # geht leider nicht, weil
                             latex += r' \begin{itemize} '
                             latex += r' \item ' + r' \item '.join(v)
-                            latex += r' \end{itemize} '
-                    data[k] = latex
+                            latex += r' \end{itemize}\leavevmode '
+                    v = latex
+                elif isinstance(v, str):
+                    v = tex_escape(v)
                 if k == 'name':
-                    # Füge bei sehr langen namen ein Leerzeichen ein
+                    # Füge bei sehr langen Namen ein Leerzeichen ein
                     # damit auf dem Badge ein Zeilenumbruch entsteht
                     parts = re.split(r'[ ]+', v)
                     for i in range(len(parts)):
                         part = parts[i]
                         if len(part) > 20:
                             parts[i] = re.sub('-', '- ', part)
-                    data[k] = ' '.join(parts)
+                    v = ' '.join(parts)
+                data[k] = v
             writer.writerow(data)
 
             cnt += 1
