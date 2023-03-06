@@ -19,37 +19,44 @@
 
 \renewcommand{\ticketdefault}{}%
 \makeatletter
-\@boxedfalse % Rahmen um Namensschild
+\@boxedtrue % Rahmen um Namensschild
 \@emptycrossmarktrue % Falzmarken
 \@cutmarktrue
 \@crossmarktrue % Schnittmarken
 \makeatother
 
 
-\newcommand{\schild}[2]{\ticket{%
+\newcommand{\schild}[3]{\ticket{%
 % das fossgis2023_background.pdf liegt in A6 quer vor %
 % und kann so komplett als Hintergrund Bild genutzt werden % 
 \put(0,0){\includegraphics[width=105mm]{../imgs/2023/fossgis2023_background.pdf}}
 \put(7,30){
   %\scalebox{2}{\textbf{#1}}
   % in der \parbox werden auch lange namen umgebrochen
-  \parbox{9cm}{\centering \Huge \textbf{#1}}
+  \parbox{9cm}{\centering \Huge \textbf{#1} 
+		}
+  
   }
-\ifthenelse{\equal{#2}{1}}{}{
-}}}
+\put(7,45){\parbox{9cm}{\raggedleft \small
+		\ifthenelse{\equal{#2}{True}}{AV}{}
+		\ifthenelse{\equal{#3}{True}}{OSM}{}
+
+}}
+}}
 
 
 
 \begin{document} 
 % \include{definitions}
 \DTLsetseparator{;}
-%\DTLloaddb{CSV}{pretix_example.csv}
-\DTLloaddb{CSV}{bin/pretix.csv}
+% % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
+% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
+\DTLloaddb{CSV}{bin/badges.csv}
 
-\DTLsort{Nachname}{CSV}
-\DTLforeach{CSV}{\person=Name,\nickname=268184}
+\DTLsort{nachname}{CSV}
+\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag}
 {
-  \schild{\person}{\nickname}
-  \schild{\person}{\nickname}  
+  \schild{\name}{\av}{\osm}
+  \schild{\name}{\av}{\osm}
 } 
 \end{document} 

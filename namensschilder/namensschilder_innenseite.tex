@@ -25,41 +25,50 @@
 \@cutmarktrue % Schnittmarken
 \makeatother
 
-\newcommand{\schildinnen}[4]{\ticket{%
-% das fossgis2023_background.pdf liegt in A6 quer vor %
-% und kann so komplett als Hintergrund Bild genutzt werden % 
-%\put(0,0){\includegraphics[width=10.5cm]{../imgs/fossgis2023_background.pdf}}
-\put(7,34){
-  %\scalebox{2}{\textbf{#1}}
+\newcommand{\schildinnenlinks}[6]{\ticket{
+\put(8,50){
   % in der \parbox werden auch lange namen umgebrochen
-  \parbox{10cm}{
+  \parbox{8.5cm}{
    % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
     \color{gray} 
     %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-  	Name: #1, #2 \\
-  	Ticket: #3 \\
-  	T-Shirt: #4
-  	
+	Order: #1 \\  	
+  	Name: #2 \\
+  	Mail: #3 \\
+  	Ticket: #4 \\  	
+  	T-Shirt: #5 \\
+  	Essen: #6
   }
   }
 }}
 
+\newcommand{\schildinnenrechts}[2]{\ticket{%
+\put(8,50){
+  % in der \parbox werden auch lange namen umgebrochen
+  \parbox{8.5cm}{
+   % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
+    \color{gray} 
+    %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
+    Workshops: #1 \\  	
+  	Exkursionen: #2
+  }
+  }
+}}
 
 \begin{document} 
 \DTLsetseparator{;}
-\DTLloaddb{CSV}{bin/pretix.csv}
-\DTLsort{Nachname}{CSV}
-%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-\DTLforeach{CSV}{\vorname=Vorname,\nachname=Nachname,\type=Ticket,\tshirt=TShirt,
-\tband=TBand, \tliste=TListe,\av=AV,\mittag=Mittag,\ex=EX,\osm=OSM}
+\DTLloaddb{CSV}{bin/badges.csv}
+\DTLsort{nachname}{CSV}
+
+% order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
+% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
+\DTLforeach{CSV}{\order=order, \name=name,\type=ticket,\tshirt=tshirt,\mail=mail,
+\av=av,\essen=essen,\ws=workshops, \ex=exkursionen}
 %\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
  %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-  \schildinnen{\nachname}{\vorname}{\type}{\tshirt}
-  %{\type}
-  %{\tshirt}{\tband}{\tliste}	
-  %{\av}{\mittag}{\ws}{\ex}{\osm}
-  %\schildinnen{\person}{\type}{\shirt}{\count}{\dialoge}{\tagungsband}
-  \ticket{}
+  \schildinnenlinks{\order}{\name}{\mail}{\type}{\tshirt}{\essen}
+  \schildinnenrechts{\ws}{\ex}
+  %\ticket{}
 } 
 \end{document} 
