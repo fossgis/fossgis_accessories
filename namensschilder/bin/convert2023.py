@@ -16,7 +16,7 @@ PATH_BADGE_CSV = 'badges.csv'
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 # ORDER_CODES = ['M7UNC', 'VXWKS']
 ORDER_CODES = None
-#ORDER_CODES = ['WAPK9']
+# ORDER_CODES = ['WAPK9']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
@@ -83,12 +83,13 @@ class BadgeInfo(object):
     Alles Infos die in eine *.csv Zeile und mit einem Badge ausgedruckt werden sollen.
     """
 
-    def __init__(self):
+    def __init__(self, name: str = None, company: str = None, mail: str = None, ticket: str = None, notes: str = None):
         self.order: str = None
-        self.name: str = None
-        self.nachname: str = None
-        self.mail: str = None
-        self.ticket: str = None
+        self.name: str = name
+        self.nachname: str = extractSurname(name) if isinstance(name, str) else None
+        self.company: str = company
+        self.mail: str = mail
+        self.ticket: str = ticket
         self.tl_name: str = None
         self.tl_veroeff: bool = False
         self.tl_erhalten: bool = False
@@ -101,6 +102,7 @@ class BadgeInfo(object):
         self.osm_name: str = True
         self.exkursionen: List[str] = []
         self.workshops: List[str] = []
+        self.notes: str = notes  # sonstiges
 
     def __str__(self):
         return f'Ticket:#{self.order},{self.nachname},{self.name}'
@@ -127,6 +129,7 @@ def normalize(name: str) -> str:
         name = name[:name.find(" (")]
     return name
 
+
 # escape LaTeX characters
 # credits to https://stackoverflow.com/questions/16259923/how-can-i-escape-latex-special-characters-inside-django-templates
 conv = {
@@ -143,7 +146,8 @@ conv = {
     '<': r'\textless{}',
     '>': r'\textgreater{}',
 }
-rx_tex_escape = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key = lambda item: - len(item))))
+rx_tex_escape = re.compile('|'.join(re.escape(str(key)) for key in sorted(conv.keys(), key=lambda item: - len(item))))
+
 
 def tex_escape(text):
     """
@@ -152,14 +156,17 @@ def tex_escape(text):
     """
     return rx_tex_escape.sub(lambda match: conv[match.group()], text)
 
+
 def extractSurname(name: str) -> str:
     name = normalize(name)
     split = name.split(" ")
     return split[-1]
 
+
 def extractFirstName(name: str) -> str:
     name = normalize(name)
     return name.split(' ')[0]
+
 
 # print(json.dumps(data, indent=4))
 
@@ -203,6 +210,7 @@ def writeItems(items: Dict[int, str], path_csv: pathlib.Path):
         for key, value in items.items():
             writer.writerow(dict(ItemID=key, Name=value))
 
+
 def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
     names = ['Max Mustermann', 'Maria Musterfrau',
              'Max Power', 'Wiener Schnitzel mit Kartoffelsalat',
@@ -222,13 +230,13 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
     essen = ['Vegan', 'Vegetarisch', 'Fleisch/Fisch']
 
     tshirts = []
-    for schnitt in ['tailliert geschnitten','gerade geschnitten']:
-        for size in ['M','L','XL','2XL', '3XL']:
+    for schnitt in ['tailliert geschnitten', 'gerade geschnitten']:
+        for size in ['M', 'L', 'XL', '2XL', '3XL']:
             tshirts.append(f'{schnitt} - {size}')
 
     BADGES = {}
 
-    rnd = lambda : random.choice([True, False])
+    rnd = lambda: random.choice([True, False])
 
     for name in names:
         badge = BadgeInfo()
@@ -248,6 +256,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
         badge.essen = random.choice(essen) if rnd() else None
         BADGES[name] = badge
     return BADGES
+
 
 def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
     BADGES = {}
