@@ -17,7 +17,7 @@ PATH_BADGE_CSV = 'badges.csv'
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 # ORDER_CODES = ['M7UNC', 'VXWKS']
 ORDER_CODES = None
-# ORDER_CODES = ['WAPK9']
+ORDER_CODES = ['FVHTR', 'XNTUX', 'J3AEN']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
@@ -72,13 +72,13 @@ EXKURSIONEN_IDs = [
     296853,  # Exkursion zur Campus Adlershof (Freitag, 16:30 Uhr)
 ]
 
-# Hier kann noch korrigiert & gekürzt werden
+# Hier können typos korrigiert & Firmennamen gekürzt werden
 REPLACE_STRINGS = {
     'WhereGrouop GmbH': 'WhereGroup GmbH',
     'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
     'Bezirksamt Tempelhof-Schöneberg von Berlin, Stadtentwicklungsamt, Fachbereich Vermessung und Geoinformation': 'Bezirksamt Tempelhof-Schöneberg von Berlin',
     'LANDESAMT FÜR VERMESSUNG UND GEOBASISINFORMATION RHEINLAND-PFALZ': 'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz',
-    'DB Fahrwegdienste GmbH c/o DB AG DB SSC Buchhaltung Deutschland' : 'DB Fahrwegdienste GmbH',
+    'DB Fahrwegdienste GmbH c/o DB AG DB SSC Buchhaltung Deutschland': 'DB Fahrwegdienste GmbH',
     'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin / IIIC - FID Karten' : 'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin'
 }
 
@@ -362,7 +362,7 @@ def readBadgeInfos(jsonData: dict, companyNames:Dict[str,str]=None) -> Dict[str,
                         s = ""
                     del qid, qname, qanswer
 
-                badge.company = CompanyNames.get(orderCode, None)
+                badge.company = re.split(r'(, )|( \| )', CompanyNames.get(orderCode, None))[0]
 
             else:
                 if badge is None:
