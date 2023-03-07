@@ -4,7 +4,7 @@
 *.pdf
 imgs/signature.png
 pretix.csv
-badges*.csv
+namensschilder/**badges*.csv
 *pretixdata.json
 *.synctex.gz
 !imgs/2023/fossgis2023_background.pdf
