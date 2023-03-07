@@ -214,7 +214,7 @@ def writeItems(items: Dict[int, str], path_csv: pathlib.Path):
 def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
     names = ['Max Mustermann', 'Maria Musterfrau',
              'Max Power', 'Wiener Schnitzel mit Kartoffelsalat',
-             'Erwin Germin', 'Arne-Unhold Unterherrlich-Obermeier']
+             'Erwin Gerwin', 'Arne-Unhold Obermeier']
     letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     workshops = ['Workshop 1',
                  'Workshop 2 mit langen Namen ärgerlichen Sonderzeichen',
@@ -229,6 +229,9 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     essen = ['Vegan', 'Vegetarisch', 'Fleisch/Fisch']
 
+    companies = ['Humboldt-Universität zu Berlin', 'Firma A GmbH', 'Bundesamt für XY und Z', 'Obelix GmbH & Co KG']
+
+    notes = ['<weitere Anmerkungen>', '<andere Anmerkungen>']
     tshirts = []
     for schnitt in ['tailliert geschnitten', 'gerade geschnitten']:
         for size in ['M', 'L', 'XL', '2XL', '3XL']:
@@ -236,14 +239,22 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     BADGES = {}
 
-    rnd = lambda: random.choice([True, False])
+    def rnd(options: List, multiple: bool = False):
+        if random.choice([True, False]):
+            if multiple:
+                return random.sample(options, random.choice(range(len(options))))
+            else:
+                return random.choice(options)
+
+        else:
+            return None
 
     for name in names:
         badge = BadgeInfo()
         badge.name = name
         badge.order = ''.join(random.sample(letters, 5))
         badge.nachname = extractSurname(name)
-        badge.tshirt = random.choice(tshirts) if rnd() else None
+        badge.tshirt = rnd(tshirts)
         badge.ticket = random.choice(tickets)
         badge.av = random.choice([True, False])
         badge.tb = random.choice([True, False])
@@ -251,9 +262,11 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
         badge.osm_samstag = random.choice([True, False])
         badge.osm_name = extractFirstName(name).lower()
         badge.mail = f'{badge.osm_name}{badge.nachname.lower()}@nomail.xyz'
-        badge.workshops = random.sample(workshops, random.choice(range(len(workshops)))) if rnd() else []
-        badge.exkursionen = random.sample(exkursionen, random.choice(range(len(exkursionen)))) if rnd() else []
-        badge.essen = random.choice(essen) if rnd() else None
+        badge.workshops = rnd(workshops, multiple=True)
+        badge.exkursionen = rnd(exkursionen, multiple=True)
+        badge.essen = rnd(essen)
+        badge.notes = rnd(notes)
+        badge.company = rnd(companies)
         BADGES[name] = badge
     return BADGES
 

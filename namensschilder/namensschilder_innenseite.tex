@@ -25,9 +25,9 @@
 
 \renewcommand{\ticketdefault}{}%
 \makeatletter
-\@boxedtrue % Rahmen um Namensschild
-\@emptycrossmarktrue % Falzmarken
-\@cutmarktrue % Schnittmarken
+\@boxedfalse % Rahmen um Namensschild
+\@emptycrossmarkfalse% Falzmarken
+\@cutmarkfalse % Schnittmarken
 \makeatother
 
 \newcommand{\striked}[3]{
@@ -38,8 +38,8 @@
 	}
 }
 
-\newcommand{\schildinnenlinks}[7]{\ticket{
-\put(8,50){
+\newcommand{\schildinnenlinks}[8]{\ticket{
+\put(8,45){
   % in der \parbox werden auch lange namen umgebrochen
   \parbox{8.5cm}{
    % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
@@ -51,9 +51,10 @@
   	Mail: #3 \\
   	Ticket: #4 \\  	
   	%Tagungsband: \ifthenelse{\equal{#5}{True}}{Ja}{---------} \\
-  	\striked{Tagungsband:}{#5}{False} \\
-  	\striked{T-Shirt:}{#6}{} \\
-  	\striked{Essen:}{#7}{} \\
+  	\striked{Tagungsband:}{ #5}{False} \\
+  	\striked{T-Shirt:}{ #6}{} \\
+  	\striked{Essen:}{ #7}{} \\
+  	Anmerkungen: #8
 %  	T-Shirt: \ifthenelse{\equal{#6}{}}{---------}{#6} \\
 %  	Essen: \ifthenelse{\equal{#7}{}}{---------}{#7} \\
   }
@@ -84,11 +85,11 @@
 % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
 % essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
 \DTLforeach{CSV}{\order=order, \name=name,\type=ticket,\tshirt=tshirt,\mail=mail,
-\av=av,\essen=essen,\ws=workshops, \ex=exkursionen, \tb=tb}
+\av=av,\essen=essen,\ws=workshops, \ex=exkursionen, \tb=tb, \notizen=notes}
 %\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
  %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
-  \schildinnenlinks{\order}{\name}{\mail}{\type}{\tb}{\tshirt}{\essen}
+  \schildinnenlinks{\order}{\name}{\mail}{\type}{\tb}{\tshirt}{\essen}{\notizen}
   \schildinnenrechts{\ws}{\ex}
   %\ticket{}
 } 

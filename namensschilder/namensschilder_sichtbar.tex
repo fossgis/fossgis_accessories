@@ -19,25 +19,35 @@
 
 \renewcommand{\ticketdefault}{}%
 \makeatletter
-\@boxedtrue % Rahmen um Namensschild
+\@boxedfalse % Rahmen um Namensschild
 \@emptycrossmarktrue % Falzmarken
-\@cutmarktrue
-\@crossmarktrue % Schnittmarken
+\@cutmarkfalse
+\@crossmarkfalse % Schnittmarken
 \makeatother
 
 
-\newcommand{\schild}[3]{\ticket{%
+\newcommand{\schild}[4]{\ticket{%
 % das fossgis2023_background.pdf liegt in A6 quer vor %
 % und kann so komplett als Hintergrund Bild genutzt werden % 
 \put(0,0){\includegraphics[width=105mm]{../imgs/2023/fossgis2023_background.pdf}}
 \put(5mm,30mm){
   % in der \parbox werden lange Namen umgebrochen
-  % \centering mit \raggedleft oder \raggedright erstetze um zu sehen w
-  \parbox{93mm}{\centering \Huge \textbf{#1} 
-		}
+  % \centering durch \raggedleft oder \raggedright erstetze um 
+  % prüfen ob die Seitenränder eingehalten werden
+
+        \begin{minipage}[c][30mm]{90mm}
+          \centering{\fontsize{36}{45}\textbf{#1}}
+          \vskip 0mm
+          \centering{ #4}
+        \end{minipage}  
   
+  %\parbox{93mm}{ \vfill
+  %\centering \Huge \textbf{#1} \normalsize \\ {#4}
+  %		}
+		
   }
-\put(5mm,45mm){\parbox{93mm}{\raggedleft \small
+  
+\put(5mm,47mm){\parbox{93mm}{\raggedleft \footnotesize
 		\ifthenelse{\equal{#2}{True}}{AV}{ }
 		\ifthenelse{\equal{#3}{True}}{OS}{ }
 
@@ -50,13 +60,13 @@
 % \include{definitions}
 \DTLsetseparator{;}
 % % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
-% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
+% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops;company
 \DTLloaddb{CSV}{bin/badges.csv}
 
 \DTLsort{nachname}{CSV}
-\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag}
+\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag, \company=company}
 {
-  \schild{\name}{\av}{\osm}
-  \schild{\name}{\av}{\osm}
+  \schild{\name}{\av}{\osm}{\company}
+  \schild{\name}{\av}{\osm}{\company}
 } 
 \end{document} 
