@@ -9,7 +9,8 @@ import re
 import sys
 from typing import Dict, List
 
-PATH_JSON = '2023_pretixdata.json'
+PATH_JSON = '2023_pretixdata.json' # Bestelldaten
+PATH_NREI = '2023_nrei.json' # 'Rechnungsdaten -> für Firmennamen
 PATH_BADGE_CSV = 'badges.csv'
 
 # hier ggf. eine Liste mit order codes nutzen um selektiv badges zu erstellen
@@ -71,9 +72,20 @@ EXKURSIONEN_IDs = [
     296853,  # Exkursion zur Campus Adlershof (Freitag, 16:30 Uhr)
 ]
 
+# Hier kann noch korrigiert & gekürzt werden
+REPLACE_STRINGS = {
+    'WhereGrouop GmbH': 'WhereGroup GmbH',
+    'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
+    'Bezirksamt Tempelhof-Schöneberg von Berlin, Stadtentwicklungsamt, Fachbereich Vermessung und Geoinformation': 'Bezirksamt Tempelhof-Schöneberg von Berlin',
+    'LANDESAMT FÜR VERMESSUNG UND GEOBASISINFORMATION RHEINLAND-PFALZ': 'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz',
+    'DB Fahrwegdienste GmbH c/o DB AG DB SSC Buchhaltung Deutschland' : 'DB Fahrwegdienste GmbH',
+    'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin / IIIC - FID Karten' : 'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin'
+}
+
 # END SETTINGS
 
 PATH_JSON = pathlib.Path(PATH_JSON).resolve()
+PATH_NREI = pathlib.Path(PATH_NREI).resolve()
 PATH_BADGE_CSV = pathlib.Path(PATH_BADGE_CSV).resolve()
 PATH_ITEM_CSV = PATH_BADGE_CSV.parent / re.sub(r'\.csv$', '.Items.csv', PATH_BADGE_CSV.name)
 
@@ -155,6 +167,18 @@ def tex_escape(text):
     :return: the message escaped to appear correctly in LaTeX
     """
     return rx_tex_escape.sub(lambda match: conv[match.group()], text)
+
+def readCompanyNames(path:pathlib.Path) -> Dict[str, str]:
+    CN = {}
+    with open(path, 'r', encoding='utf-8') as f:
+        jsonData = json.load(f)
+
+    for data in jsonData['Data']:
+        orderCode = data['Hdr']['OID']
+        company = data['Hdr']['CN']
+        CN[orderCode] = company
+
+    return CN
 
 
 def extractSurname(name: str) -> str:
@@ -271,7 +295,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
     return BADGES
 
 
-def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
+def readBadgeInfos(jsonData: dict, companyNames:Dict[str,str]=None) -> Dict[str, BadgeInfo]:
     BADGES = {}
 
     ITEMS = readEventItems(jsonData)
@@ -337,6 +361,9 @@ def readBadgeInfos(jsonData: dict) -> Dict[str, BadgeInfo]:
                     else:
                         s = ""
                     del qid, qname, qanswer
+
+                badge.company = CompanyNames.get(orderCode, None)
+
             else:
                 if badge is None:
                     s = ""
@@ -405,6 +432,7 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
                             latex += r' \end{itemize}\leavevmode '
                     v = latex
                 elif isinstance(v, str):
+                    v = REPLACE_STRINGS.get(v, v)
                     v = tex_escape(v)
                 if k == 'name':
                     # Füge bei sehr langen Namen ein Leerzeichen ein
@@ -443,9 +471,14 @@ if __name__ == '__main__':
         for key, value in questions.items():
             print(f'{key}, #{value}')
 
-        # 3. Lese Badge Data
-        badges = readBadgeInfos(jsonData)
-    # 4. Schreibe badge CSV
+        if PATH_NREI.is_file():
+            CompanyNames = readCompanyNames(PATH_NREI)
+        else:
+            CompanyNames = {}
 
+        # 3. Lese Badge Data
+        badges = readBadgeInfos(jsonData, companyNames=CompanyNames)
+
+    # 4. Schreibe badge CSV
     writeBadgeCsv(badges, PATH_BADGE_CSV)
     print("\nNumber of attendees: " + str(len(badges)))
