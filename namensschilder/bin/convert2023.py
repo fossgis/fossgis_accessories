@@ -13,18 +13,20 @@ PATH_JSON = '2023_pretixdata.json' # Bestelldaten
 PATH_NREI = '2023_nrei.json' # 'Rechnungsdaten -> für Firmennamen
 PATH_BADGE_CSV = 'badges.csv'
 
+# if True -> generiert ein pseudodata.badges.csv mit Max & Maria Musterfrau data
+PSEUDODATA: bool = True
+
 # hier ggf. eine Liste mit order codes nutzen um selektiv badges zu erstellen
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 # ORDER_CODES = ['M7UNC', 'VXWKS']
 ORDER_CODES = None
-ORDER_CODES = ['FVHTR', 'XNTUX', 'J3AEN']
+# ORDER_CODES = ['FVHTR', 'XNTUX', 'J3AEN']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
 CSV_LIMIT: int = -1
 
-# if True -> generiert ein Pseudo-CSV mit Max & Maria Musterfrau data
-PSEUDODATA: bool = False
+
 
 # Auflistung IDs für Workshop Tickets
 #
@@ -253,7 +255,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     essen = ['Vegan', 'Vegetarisch', 'Fleisch/Fisch']
 
-    companies = ['Humboldt-Universität zu Berlin', 'Firma A GmbH', 'Bundesamt für XY und Z', 'Obelix GmbH & Co KG']
+    companies = ['Firma In-der-Kürze-liegt die Würze GmbH mit dennoch langem Namen', 'Bundesamt für XY und Z', 'Obelix GmbH & Co KG']
 
     notes = ['<weitere Anmerkungen>', '<andere Anmerkungen>']
     tshirts = []
@@ -290,7 +292,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
         badge.exkursionen = rnd(exkursionen, multiple=True)
         badge.essen = rnd(essen)
         badge.notes = rnd(notes)
-        badge.company = rnd(companies)
+        badge.company = random.choice(companies)
         BADGES[name] = badge
     return BADGES
 
@@ -362,7 +364,10 @@ def readBadgeInfos(jsonData: dict, companyNames:Dict[str,str]=None) -> Dict[str,
                         s = ""
                     del qid, qname, qanswer
 
-                badge.company = re.split(r'(, )|( \| )', CompanyNames.get(orderCode, None))[0]
+                cn = CompanyNames.get(orderCode, badge.company)
+                if isinstance(cn, str):
+                    cn = re.split(r'(, | \\ )', cn)[0]
+                badge.company = cn
 
             else:
                 if badge is None:
@@ -454,6 +459,7 @@ if __name__ == '__main__':
     if PSEUDODATA:
         print('Create Badges with Pseudo-Data')
         badges = readPseudoBadgeInfos()
+        PATH_BADGE_CSV = PATH_BADGE_CSV.parent / f'pseudodata.{PATH_BADGE_CSV.name}'
     else:
         # 1. lese JSON
         with open(PATH_JSON, 'r', encoding='utf-8') as f:

@@ -1,7 +1,7 @@
 
 \documentclass[a4paper, 12pt]{letter}
 \usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
-\usepackage[schilder,rowmode]{ticket}
+\usepackage[schilder, rowmode]{ticket}
 \usepackage{graphicx,palatino}
 \usepackage{xcolor}
 \usepackage[utf8]{inputenc} 
@@ -16,13 +16,17 @@
 \setlist[itemize]{leftmargin=5mm}
 \setlist{nosep}
 
+\ifdefined\BadgeCSV
+\else
+	\newcommand{\BadgeCSV}{bin/pseudodata.badges.csv}  
+\fi
 
  %\overfullrule 10pt
  \hyphenpenalty 1000
  \exhyphenpenalty 10000
 
 %\renewcommand*\rmdefault{iwona}
-
+\newcounter{ticketcount}
 \renewcommand{\ticketdefault}{}%
 \makeatletter
 \@boxedfalse % Rahmen um Namensschild
@@ -78,9 +82,12 @@
 
 \begin{document} 
 \DTLsetseparator{;}
-\DTLloaddb{CSV}{bin/badges.csv}
+%\DTLloaddb{CSV}{bin/badges.proof.csv}
+\typeout{Load CSV: \BadgeCSV ...} 
+\DTLloaddb{CSV}{\BadgeCSV}
+\typeout{CSV loaded} 
 %\DTLloadrawdb{CSV}{bin/badges.csv}
-\DTLsort{nachname}{CSV}
+%\DTLsort{nachname}{CSV}
 
 % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
 % essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
@@ -88,9 +95,9 @@
 \av=av,\essen=essen,\ws=workshops, \ex=exkursionen, \tb=tb, \notizen=notes}
 %\DTLforeach{CSV}{\person=Name,\nickname=268184}
 {
- %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
+  \typeout{Ticket \arabic{ticketcount}: \order  "\name "}  
   \schildinnenlinks{\order}{\name}{\mail}{\type}{\tb}{\tshirt}{\essen}{\notizen}
   \schildinnenrechts{\ws}{\ex}
-  %\ticket{}
+  \addtocounter{ticketcount}{1}
 } 
 \end{document} 
