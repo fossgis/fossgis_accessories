@@ -18,7 +18,10 @@ extra_badges: List[BadgeInfo] = [
               notes='Eröffnungsgast'),
 ]
 
-path = path.resolve()
+
 extra_badges: Dict[str, BadgeInfo] = {b.name: b for b in extra_badges}
-writeBadgeCsv(extra_badges, path)
+
+if __name__ == '__main__':
+    path = path.resolve()
+    writeBadgeCsv(extra_badges, path)
 

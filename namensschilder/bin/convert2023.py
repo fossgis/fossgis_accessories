@@ -11,7 +11,7 @@ from typing import Dict, List
 
 PATH_JSON = '2023_pretixdata.json'  # Bestelldaten
 PATH_NREI = '2023_nrei.json'  # 'Rechnungsdaten -> für Firmennamen
-PATH_BADGE_CSV = 'badges.B.csv'
+PATH_BADGE_CSV = 'badges.C.csv'
 
 # if True -> generiert ein pseudodata.badges.csv mit Max & Maria Musterfrau data
 PSEUDODATA: bool = False
@@ -20,7 +20,7 @@ PSEUDODATA: bool = False
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
 #
 ORDER_CODES = None
-# ORDER_CODES = ['Z3SNF']
+# ORDER_CODES = ['PCJ7N']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
@@ -75,17 +75,34 @@ EXKURSIONEN_IDs = [
     296853,  # Exkursion zur Campus Adlershof (Freitag, 16:30 Uhr)
 ]
 
-# Hier können typos korrigiert & Firmennamen gekürzt werden
-REPLACE_STRINGS = {
-    'WhereGrouop GmbH': 'WhereGroup GmbH',
-    'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation - Landesbetrieb': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
-    'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
-    'Bezirksamt Tempelhof-Schöneberg von Berlin, Stadtentwicklungsamt, Fachbereich Vermessung und Geoinformation': 'Bezirksamt Tempelhof-Schöneberg von Berlin',
-    'LANDESAMT FÜR VERMESSUNG UND GEOBASISINFORMATION RHEINLAND-PFALZ': 'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz',
-    'DB Fahrwegdienste GmbH c/o DB AG DB SSC Buchhaltung Deutschland': 'DB Fahrwegdienste GmbH',
-    'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin / IIIC - FID Karten': 'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin',
-    'Technische Universität Chemnitz - Professur Schaltkreis und Systementwurf': 'Technische Universität Chemnitz',
+# Hier können typos korrigiert, Firmennamen gekürzt und vereinheitlicht werden
+DELETE_FROM_NAMES = [
+    re.compile(r'FD Vermesssung und Geodaten Stadt Hildesheim[ ]*'),
+    re.compile(r'Software Development[ ]*'),
+    re.compile(r'Web GIS Freelance[ ]*'),
+    re.compile(r'.* Consultants[ ]*'),
+    re.compile(r'.* GmbH[ ]*'),
+    re.compile(r'FH Aachen[ ]*'),
+]
+REPLACE_IN_COMPANIES = {
+    'Bundesamt für Kartographie und Geodäsie': re.compile('BKG'),
+    'WhereGroup GmbH': re.compile(r'WhereGrouo?p GmbH', re.I),
+    'DB Systel GmbH': re.compile('DB Systel GmbH c/o Deutsche Bahn AG'),
+    'Landesamt für Geoinformation und Landesvermessung Niedersachsen': re.compile(r'LGLN|Landesamt für Geoinformation und Landesvermessung Niedersachsen', re.I),
+    'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz': re.compile(r'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz', re.I),
+    'Landesamt für Geoinformation und Landentwicklung Baden-Württemberg':
+        re.compile(r'Landesamt für Geoinformation und Landentwicklung (Baden-Württemberg|BW)', re.I),
+    'Landesvermessung und Geobasisinformation Brandenburg' : re.compile('^LGB$'),
+    'Staatsbibliothek zu Berlin': re.compile(r'staatsbibliothek zu berlin', re.I),
+    'Umweltbundesamt (UBA)': re.compile(r'umweltbundesamt|\(UBA\)', re.I),
+    'Stadt Leipzig': re.compile(r'Stadt Leipzig', re.I),
+    'Technische Universität Chemnitz': re.compile('Technische Universität Chemnitz'),
+    'Bezirksamt Tempelhof-Schöneberg von Berlin': re.compile(r'Bezirksamt Tempelhof-Schöneberg von Berlin', re.I),
+    'DB Fahrwegdienste GmbH': re.compile(r'DB Fahrwegdienste GmbH', re.I),
+    'Landesamt für Geoinformation \& Landesvermessung Niedersachsen' :  re.compile('LGLN'),
+    'Leibniz-Zentrum für Agrarlandschaftsforschung (ZALF)': re.compile('ZALF'),
 }
+
 
 # END SETTINGS
 
@@ -104,12 +121,13 @@ class BadgeInfo(object):
                  name: str = None,
                  company: str = None,
                  mail: str = None,
-                 orderCode:str = None,
+                 orderCode: str = None,
                  ticket: str = None,
                  notes: str = None):
+
         self.order: str = orderCode
-        self.name: str = name
-        self.nachname: str = extractSurname(name) if isinstance(name, str) else None
+        self.name: str = normalizeName(name) if isinstance(name, str) else None
+        self.nachname: str = extractSurname(self.name) if isinstance(self.name, str) else None
         self.company: str = company
         self.mail: str = mail
         self.ticket: str = ticket
@@ -127,6 +145,9 @@ class BadgeInfo(object):
         self.workshops: List[str] = []
         self.notes: str = notes  # sonstiges
 
+    def id(self) -> str:
+        return f'{self.name}:{self.mail}'
+
     def __str__(self):
         return f'Ticket:#{self.order},{self.nachname},{self.name}'
 
@@ -141,7 +162,7 @@ class csvDialect(csv.Dialect):
     quoting = csv.QUOTE_MINIMAL
 
 
-def normalize(name: str) -> str:
+def normalizeName(name: str) -> str:
     """
 
     :param name:
@@ -150,6 +171,10 @@ def normalize(name: str) -> str:
     name = name.replace(", BSc", "")
     if name.find(" (") > 0:
         name = name[:name.find(" (")]
+    name = re.sub(r'Dipl\.-(Ing|Geogr|Geol)\.[ ]+]', '', name)
+    name = re.sub(r'(FD Vermesssung und Geodaten Stadt Hildesheim|Staatsbibliothek zu Berlin|Development and Operations| / Sourcepole)[ ]*', '', name)
+    if ',' in name:
+        name = ' '.join(reversed(re.split(r'[ ]*,[ ]*', name)))
     return name
 
 
@@ -192,15 +217,24 @@ def readCompanyNames(path: pathlib.Path) -> Dict[str, str]:
 
     return CN
 
+def replace_strings(text:str, replacements:dict):
+
+    for newtext, oldtext in replacements.items():
+        if isinstance(oldtext, str):
+            text = text.replace(oldtext, newtext)
+        if oldtext.search(text):
+            return newtext
+    return text
+
 
 def extractSurname(name: str) -> str:
-    name = normalize(name)
+    name = normalizeName(name)
     split = name.split(" ")
     return split[-1]
 
 
 def extractFirstName(name: str) -> str:
-    name = normalize(name)
+    name = normalizeName(name)
     return name.split(' ')[0]
 
 
@@ -309,7 +343,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
 
 def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[str, BadgeInfo]:
-    BADGES = {}
+    BADGES: Dict[str, BadgeInfo] = {}
 
     ITEMS = readEventItems(jsonData)
     QUESTIONS = readEventQuestions(jsonData)
@@ -319,9 +353,9 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
     # p = payed, s = storniert, n = nicht bezahlt, c = canceled
     orders = [o for o in jsonData["event"]["orders"] if o['status'] not in ['s', 'c']]
 
-    #1. Create Badge for each ticket order
+    # 1. Create Badge for each ticket order
     for o in orders:
-        code=o['code']
+        code = o['code']
         if isinstance(ORDER_CODES, list) and code not in ORDER_CODES:
             continue
         for pos in o['positions']:
@@ -332,10 +366,11 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
                 cn = CompanyNames.get(code, None)
                 if isinstance(cn, str):
                     cn = re.split(r'(, | \\ )', cn)[0]
-                BADGES[mail] = BadgeInfo(mail=mail,
+                badge = BadgeInfo(mail=mail,
                                          name=questions.get(69219, name),
                                          orderCode=code,
                                          company=cn)
+                BADGES[badge.id()] = badge
 
     for cntOrder, order in enumerate(jsonData["event"]["orders"]):
         # !eine Order kann mehrere Tickets enthalten
@@ -356,16 +391,18 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
             itemName = ITEMS[itemID]
 
             if itemID in [
-                288025, # Online - Konferenzticket - reduzierter Preis
-                288036, # Online - Konferenzticket Community
-                274385, # Online - Konferenzticket
+                288025,  # Online - Konferenzticket - reduzierter Preis
+                288036,  # Online - Konferenzticket Community
+                274385,  # Online - Konferenzticket
             ]:
                 badge = None
                 continue
             elif itemID in TICKET_IDs:
                 mail = pos['attendee_email']
-                if mail in BADGES:
-                    badge = BADGES[mail]
+                name = pos['attendee_name']
+                badgeID = f'{name}:{mail}'
+                if badgeID in BADGES:
+                    badge = BADGES[badgeID]
                     if badge.ticket is None:
                         badge.ticket = itemName
                 else:
@@ -441,6 +478,10 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
             else:
                 s = ""
             s = ""
+    for k, badge in BADGES.items():
+        if badge.company in [None, '']:
+            if isinstance(badge.mail, str) and re.search(r'@(geo|student)?\.?hu-berlin\.de$', badge.mail):
+                badge.company = 'Humboldt-Universität zu Berlin'
 
     if len(ORDERS_TO_CHECK) > 0:
         print('Überprüfen:')
@@ -482,12 +523,15 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
                             latex += r' \end{itemize}\leavevmode '
                     v = latex
                 elif isinstance(v, str):
-                    v = REPLACE_STRINGS.get(v, v)
+                    if k == 'company':
+                        v = replace_strings(v, REPLACE_IN_COMPANIES)
                     v = tex_escape(v)
                 if k == 'name':
                     # Füge bei sehr langen Namen ein Leerzeichen ein
                     # damit auf dem Badge ein Zeilenumbruch entsteht
-                    v = re.sub(r'(B\.?Sc|M\.?Sc|Dipl\.-Geogr|Dipl\.-Ing|Prof)\.[ ]+', '', v)
+                    v = re.sub(r'(B\.?Sc|M\.?Sc|Dipl\.[- ]*(Geogr|Geol|Ing)\.?)[ ]+', '', v)
+                    for rx in DELETE_FROM_NAMES:
+                        v = rx.sub('', v)
                     v = re.sub(r'\(.+\)', '', v)
                     v = v.strip()
                     v = re.split(r'\|', v)[0]
@@ -536,6 +580,26 @@ if __name__ == '__main__':
 
         # 3. Lese Badge Data
         badges = readBadgeInfos(jsonData, companyNames=CompanyNames)
+
+        if False:
+            # füge Sondergäste hinzu
+            from create_extra_badges import extra_badges
+
+            for i, b in enumerate(extra_badges.values()):
+                badges[f'guest_{i + 1}'] = b
+
+
+            # Füge 10 leere Badges hinzu und
+            emptyBadges = 10
+
+            # Fülle A4 Blatt auf
+            while (len(badges) + emptyBadges) % 4 != 0:
+                emptyBadges += 1
+
+            for i in range(emptyBadges):
+                badges[f'empty_{i + 1}'] = BadgeInfo(name='')
+
+            s = ""
 
     # 4. Schreibe badge CSV
     writeBadgeCsv(badges, PATH_BADGE_CSV)
