@@ -9,35 +9,36 @@ import re
 import sys
 from typing import Dict, List
 
-PATH_JSON = '2023_pretixdata.json' # Bestelldaten
-PATH_NREI = '2023_nrei.json' # 'Rechnungsdaten -> für Firmennamen
-PATH_BADGE_CSV = 'badges.csv'
+PATH_JSON = '2023_pretixdata.json'  # Bestelldaten
+PATH_NREI = '2023_nrei.json'  # 'Rechnungsdaten -> für Firmennamen
+PATH_BADGE_CSV = 'badges.B.csv'
 
 # if True -> generiert ein pseudodata.badges.csv mit Max & Maria Musterfrau data
-PSEUDODATA: bool = True
+PSEUDODATA: bool = False
 
 # hier ggf. eine Liste mit order codes nutzen um selektiv badges zu erstellen
 # https://pretix.eu/control/event/fossgis/2023/orders/<order code>/
-# ORDER_CODES = ['M7UNC', 'VXWKS']
+#
 ORDER_CODES = None
-# ORDER_CODES = ['FVHTR', 'XNTUX', 'J3AEN']
+# ORDER_CODES = ['Z3SNF']
 
 # if >0 -> beschränkt das aus der json generierte CSV auf CSV_LIMIT Zeilen.
 # Gut um schnell zu testen ob das PDF sinnvoll aussieht
 CSV_LIMIT: int = -1
-
-
 
 # Auflistung IDs für Workshop Tickets
 #
 
 
 TICKET_IDs = [
-    272120,  # Konferenzticket Beitragende
+    272120,  # Konferenzticket Beitragende x
     268184,  # Konferenzticket
     268185,  # Konferenzticket Community
     268218,  # Konferenzticket - reduzierter Preis
     270039,  # Konferenzticket fÃ¼r Helfende
+    272122,  # Konferenzticket Aussteller
+    272123,  # Konferenzticket für studentische Helfende
+    271553,  # OSM-Samstag
 ]
 
 # Workshop IDs
@@ -77,11 +78,13 @@ EXKURSIONEN_IDs = [
 # Hier können typos korrigiert & Firmennamen gekürzt werden
 REPLACE_STRINGS = {
     'WhereGrouop GmbH': 'WhereGroup GmbH',
+    'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation - Landesbetrieb': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
     'Landesamt für Geoinformation und Landesvermessung Niedersachsen - Landesvermessung und Geobasisinformation': 'Landesamt für Geoinformation und Landesvermessung Niedersachsen',
     'Bezirksamt Tempelhof-Schöneberg von Berlin, Stadtentwicklungsamt, Fachbereich Vermessung und Geoinformation': 'Bezirksamt Tempelhof-Schöneberg von Berlin',
     'LANDESAMT FÜR VERMESSUNG UND GEOBASISINFORMATION RHEINLAND-PFALZ': 'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz',
     'DB Fahrwegdienste GmbH c/o DB AG DB SSC Buchhaltung Deutschland': 'DB Fahrwegdienste GmbH',
-    'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin / IIIC - FID Karten' : 'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin'
+    'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin / IIIC - FID Karten': 'Stiftung Preußischer Kulturbesitz / Staatsbibliothek zu Berlin',
+    'Technische Universität Chemnitz - Professur Schaltkreis und Systementwurf': 'Technische Universität Chemnitz',
 }
 
 # END SETTINGS
@@ -97,8 +100,14 @@ class BadgeInfo(object):
     Alles Infos die in eine *.csv Zeile und mit einem Badge ausgedruckt werden sollen.
     """
 
-    def __init__(self, name: str = None, company: str = None, mail: str = None, ticket: str = None, notes: str = None):
-        self.order: str = None
+    def __init__(self,
+                 name: str = None,
+                 company: str = None,
+                 mail: str = None,
+                 orderCode:str = None,
+                 ticket: str = None,
+                 notes: str = None):
+        self.order: str = orderCode
         self.name: str = name
         self.nachname: str = extractSurname(name) if isinstance(name, str) else None
         self.company: str = company
@@ -113,7 +122,7 @@ class BadgeInfo(object):
         self.tb: bool = False
         self.tb_adresse: str = None
         self.osm_samstag: bool = False
-        self.osm_name: str = True
+        self.osm_name: str = None
         self.exkursionen: List[str] = []
         self.workshops: List[str] = []
         self.notes: str = notes  # sonstiges
@@ -170,7 +179,8 @@ def tex_escape(text):
     """
     return rx_tex_escape.sub(lambda match: conv[match.group()], text)
 
-def readCompanyNames(path:pathlib.Path) -> Dict[str, str]:
+
+def readCompanyNames(path: pathlib.Path) -> Dict[str, str]:
     CN = {}
     with open(path, 'r', encoding='utf-8') as f:
         jsonData = json.load(f)
@@ -255,7 +265,8 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     essen = ['Vegan', 'Vegetarisch', 'Fleisch/Fisch']
 
-    companies = ['Firma In-der-Kürze-liegt die Würze GmbH mit dennoch langem Namen', 'Bundesamt für XY und Z', 'Obelix GmbH & Co KG']
+    companies = ['Firma In-der-Kürze-liegt die Würze GmbH mit dennoch langem Namen', 'Bundesamt für XY und Z',
+                 'Obelix GmbH & Co KG']
 
     notes = ['<weitere Anmerkungen>', '<andere Anmerkungen>']
     tshirts = []
@@ -297,7 +308,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
     return BADGES
 
 
-def readBadgeInfos(jsonData: dict, companyNames:Dict[str,str]=None) -> Dict[str, BadgeInfo]:
+def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[str, BadgeInfo]:
     BADGES = {}
 
     ITEMS = readEventItems(jsonData)
@@ -305,96 +316,130 @@ def readBadgeInfos(jsonData: dict, companyNames:Dict[str,str]=None) -> Dict[str,
 
     ORDERS_TO_CHECK: Dict[str, str] = {}
 
+    # p = payed, s = storniert, n = nicht bezahlt, c = canceled
+    orders = [o for o in jsonData["event"]["orders"] if o['status'] not in ['s', 'c']]
+
+    #1. Create Badge for each ticket order
+    for o in orders:
+        code=o['code']
+        if isinstance(ORDER_CODES, list) and code not in ORDER_CODES:
+            continue
+        for pos in o['positions']:
+            mail = pos['attendee_email']
+            name = pos['attendee_name']
+            questions = {qa['question']: qa['answer'] for qa in pos['answers']}
+            if pos['item'] in TICKET_IDs and isinstance(mail, str):
+                cn = CompanyNames.get(code, None)
+                if isinstance(cn, str):
+                    cn = re.split(r'(, | \\ )', cn)[0]
+                BADGES[mail] = BadgeInfo(mail=mail,
+                                         name=questions.get(69219, name),
+                                         orderCode=code,
+                                         company=cn)
+
     for cntOrder, order in enumerate(jsonData["event"]["orders"]):
         # !eine Order kann mehrere Tickets enthalten
         # !eine Order kann nur Online Tickets enthalten und wie brauchen wir hier nicht
 
-        orderCode = order['code']  # z.B. "LSVKC"
+        code = order['code']  # z.B. "LSVKC"
+        if isinstance(ORDER_CODES, list) and code not in ORDER_CODES:
+            continue
         status = order['status']
         # p = payed, s = storniert, n = nicht bezahlt, c = canceled
         if status in ['s', 'c']:
             continue
         assert status in ['p', 'n'], f'unhandled status {status}'
 
-        if isinstance(ORDER_CODES, list) and orderCode not in ORDER_CODES:
-            continue
-
         badge: BadgeInfo = None
         for cntPos, pos in enumerate(order["positions"]):
+            itemID = pos['item']
+            itemName = ITEMS[itemID]
+
+            if itemID in [
+                288025, # Online - Konferenzticket - reduzierter Preis
+                288036, # Online - Konferenzticket Community
+                274385, # Online - Konferenzticket
+            ]:
+                badge = None
+                continue
+            elif itemID in TICKET_IDs:
+                mail = pos['attendee_email']
+                if mail in BADGES:
+                    badge = BADGES[mail]
+                    if badge.ticket is None:
+                        badge.ticket = itemName
+                else:
+                    s = ""
+            if not isinstance(badge, BadgeInfo):
+                continue
+
             itemID = pos['item']
             variationID = pos['variation']
             itemName = ITEMS[itemID]
             variationName = ITEMS[variationID] if variationID else itemName
+
+            # read questions
             questions = {qa['question']: qa['answer'] for qa in pos['answers']}
 
-            name = pos['attendee_name']
-            mail = pos['attendee_email']
-            if name:
-                badge = None
-            if itemID in TICKET_IDs:
-                badge = BadgeInfo()
-                badge.order = orderCode
-                if name in BADGES:
-                    existingTicket = BADGES[name]
-                    ORDERS_TO_CHECK[orderCode] = f'{name}:Ticket existiert bereits {existingTicket.order}'
+            for qid, qanswer in questions.items():
+                qname = QUESTIONS[qid]
+
+                if qid in [69296,  # Ich helfe...
+                           69291,  # Ich bin...
+                           69295,  # In dr FOSSGIS-Community bin ich aktiv ...
+                           69293,  # Wo liegt dein Sourcecode?
+                           73483,  # vollständige Adresse TB
+                           ]:
                     continue
-                badge.mail = mail
-                badge.name = questions.get(69219, name)  # 1. Name für Teilnehmerliste, 2. Bestellungs Name
-                badge.nachname = extractSurname(name)
-                BADGES[name] = badge
-                badge.ticket = variationName
-
-                for qid, qanswer in questions.items():
-                    qname = QUESTIONS[qid]
-                    if qid in [69296,  # Ich helfe...
-                               69291,  # Ich bin...
-                               69295,  # In dr FOSSGIS-Community bin ich aktiv ...
-                               69293,  # Wo liegt dein Sourcecode?
-                               ]:
-                        continue
-                    elif qid == 69219:  # Name Teilnehmerliste
-                        badge.tl_name = qanswer
-                    elif qid == 69290:  # Ich mÃ¶chte meinen Namen und meine Email-Adresse in der Teilnehmer:innenliste verÃ¶ffentlichen.
-                        badge.tl_veroeff = str(qanswer).lower() in ['true']
-                    elif qid == 69294:  # Name Englesystem
-                        badge.engel = qanswer
-                    elif qid == 69292:  # Wie is dein Mappername?
-                        badge.osm_name = qanswer
-                    else:
-                        s = ""
-                    del qid, qname, qanswer
-
-                cn = CompanyNames.get(orderCode, badge.company)
-                if isinstance(cn, str):
-                    cn = re.split(r'(, | \\ )', cn)[0]
-                badge.company = cn
-
-            else:
-                if badge is None:
-                    s = ""
-                    continue
-                if itemID == 271559:  # T-Shirt
-                    badge.tshirt = variationName
-                elif itemID == 274775:  # Helfer T-Shirt:
-                    badge.tshirt = variationName
-                elif itemID == 271557:  # Ich möchte einen Tagungsband erhalten
-                    badge.tb = True
-                elif itemID == 73483:  # Ihre vollstÃ¤ndige Versandadresse fÃ¼r gedruckten Tagungsband:
-                    badge.tb_adresse = ''
-                elif itemID == 271558:  # Ich möchte eine Teilnehmer:innenliste erhalten
-                    badge.tl_erhalten = True
-                elif itemID in [274773, 281276, 275242]:  # Mittagessen
-                    badge.essen = variationName
-                elif itemID == 271556:  # Ja, ich nehme an der Abendveranstaltung teil.
-                    badge.av = True
-                elif itemID in EXKURSIONEN_IDs:
-                    badge.exkursionen.append(variationName)
-                elif itemID in WORKSHOP_IDs:
-                    badge.workshops.append(variationName)
-                elif itemID == 271553:  # OSM-Samstag
+                # OSM-Samstag?
+                elif itemID == 271553 and questions.get(71695, '') in \
+                        ['',  # im Zweifel: nehmen wir an ja, Teilnehmer:in wird in Berlin vor Ort sein
+                         'Ich werde in Berlin vor Ort sein.']:
                     badge.osm_samstag = True
+                    if badge.ticket is None:
+                        badge.ticket = itemName
+                elif qid == 69219:  # Name Teilnehmerliste
+                    badge.tl_name = qanswer
+                elif qid == 69290:  # Ich mÃ¶chte meinen Namen und meine Email-Adresse in der Teilnehmer:innenliste verÃ¶ffentlichen.
+                    badge.tl_veroeff = str(qanswer).lower() in ['true']
+                elif qid == 69294:  # Name Englesystem
+                    badge.engel = qanswer
+                elif qid == 69292:  # Wie is dein Mappername?
+                    badge.osm_name = qanswer
                 else:
                     s = ""
+                del qid, qname, qanswer
+
+            ## Add other items
+            if itemID == 271559:  # T-Shirt
+                badge.tshirt = variationName
+            elif itemID == 274775:  # Helfer T-Shirt:
+                badge.tshirt = variationName
+            elif itemID == 271557:  # Ich möchte einen Tagungsband erhalten
+                badge.tb = True
+            elif itemID == 73483:  # Ihre vollstÃ¤ndige Versandadresse fÃ¼r gedruckten Tagungsband:
+                badge.tb_adresse = ''
+            elif itemID == 271558:  # Ich möchte eine Teilnehmer:innenliste erhalten
+                badge.tl_erhalten = True
+            elif itemID in [  # Mittagessen [268219, 274360, 274773, 281276, 275242]:
+                268219,  # Mittagessen ( 3 x ) # x - fehlte, keine Bestellunge
+                274360,  # Mittagessen für Helfer # x - fehlte
+                274773,  # "Mittagessen (Mi, Do, Fr)"
+                275242,  # Mittagessennachbuchung
+                281276,  # Mittagessen für Helfende
+            ]:
+
+                badge.essen = variationName
+            elif itemID == 271556:  # Ja, ich nehme an der Abendveranstaltung teil.
+                badge.av = True
+            elif itemID in EXKURSIONEN_IDs:
+                badge.exkursionen.append(variationName)
+            elif itemID in WORKSHOP_IDs:
+                badge.workshops.append(variationName)
+            elif itemID == 271553:  # OSM-Samstag
+                badge.osm_samstag = True
+            else:
+                s = ""
             s = ""
 
     if len(ORDERS_TO_CHECK) > 0:
@@ -413,7 +458,7 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
         # schreibe alle Attribute als CSV Spalte
         p = badgeInfos[0]
         header = [k for k in p.__dict__.keys() if not k.startswith('_')]
-
+        header.append('needs_check')
         writer = csv.DictWriter(f, header, dialect=csvDialect)
         writer.writeheader()
 
@@ -421,7 +466,7 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
         for person in badgeInfos:
             if CSV_LIMIT > 0 and cnt >= CSV_LIMIT:
                 break
-            data = {k: person.__dict__[k] for k in header}
+            data = {k: person.__dict__.get(k, None) for k in header}
             for k in list(data.keys()):
                 v = data[k]
                 if isinstance(v, list):
@@ -442,11 +487,18 @@ def writeBadgeCsv(badgeInfos: Dict[str, BadgeInfo], path_csv: pathlib.Path):
                 if k == 'name':
                     # Füge bei sehr langen Namen ein Leerzeichen ein
                     # damit auf dem Badge ein Zeilenumbruch entsteht
+                    v = re.sub(r'(B\.?Sc|M\.?Sc|Dipl\.-Geogr|Dipl\.-Ing|Prof)\.[ ]+', '', v)
+                    v = re.sub(r'\(.+\)', '', v)
+                    v = v.strip()
+                    v = re.split(r'\|', v)[0]
+                    if ',' in v:
+                        print(f'Check "{v}"', file=sys.stderr)
+                        data['needs_check'] = True
                     parts = re.split(r'[ ]+', v)
                     for i in range(len(parts)):
                         part = parts[i]
-                        if len(part) > 20:
-                            parts[i] = re.sub('-', '- ', part)
+                        if len(part) > 15:
+                            parts[i] = re.sub('-', '-""', part)
                     v = ' '.join(parts)
                 data[k] = v
             writer.writerow(data)
