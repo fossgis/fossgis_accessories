@@ -30,6 +30,7 @@ class RAUEME(object):
     Teltow16 = "Teltow (1'101) 16 Plätze"
     Prignitz12 = "Prignitz (1'230): 12 Plätze"
 
+
 # Ordnet Räume einzelnen Workshops zu
 WS_RAEUME = {
     'Punktwolkeverarbeitung und Analyse mit PDAL': RAUEME.Spreewald24,
@@ -67,12 +68,12 @@ class Teilnehmer(object):
 class Workshop(object):
 
     def __init__(self):
-        self.name:str = None
-        self.itemId:int = None
-        self.description:str = None
-        self.leitung:str = None
-        self.zeit:str = None
-        self.raum:str = None
+        self.name: str = None
+        self.itemId: int = None
+        self.description: str = None
+        self.leitung: str = None
+        self.zeit: str = None
+        self.raum: str = None
         self.teilnehmer: List[str] = []
 
     def __str__(self):
