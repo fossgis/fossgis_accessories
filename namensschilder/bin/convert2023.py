@@ -83,9 +83,10 @@ DELETE_FROM_NAMES = [
     re.compile(r'.* Consultants[ ]*'),
     re.compile(r'.* GmbH[ ]*'),
     re.compile(r'FH Aachen[ ]*'),
+    re.compile(r'NTI Deutschland.*'),
 ]
 REPLACE_IN_COMPANIES = {
-    'Bundesamt für Kartographie und Geodäsie': re.compile('BKG'),
+    'Bundesamt für Kartographie und Geodäsie': re.compile('(BKG|Bundesamt für Kartographie und Geodäsie)'),
     'WhereGroup GmbH': re.compile(r'WhereGrouo?p GmbH', re.I),
     'DB Systel GmbH': re.compile('DB Systel GmbH c/o Deutsche Bahn AG'),
     'Landesamt für Geoinformation und Landesvermessung Niedersachsen': re.compile(r'LGLN|Landesamt für Geoinformation und Landesvermessung Niedersachsen', re.I),
@@ -101,6 +102,7 @@ REPLACE_IN_COMPANIES = {
     'DB Fahrwegdienste GmbH': re.compile(r'DB Fahrwegdienste GmbH', re.I),
     'Landesamt für Geoinformation \& Landesvermessung Niedersachsen' :  re.compile('LGLN'),
     'Leibniz-Zentrum für Agrarlandschaftsforschung (ZALF)': re.compile('ZALF'),
+    'Deutsches Zentrum für Luft- und Raumfahrt (DLR)' : re.compile('Deutsches Zentrum für Luft- und Raumfahrt'),
 }
 
 

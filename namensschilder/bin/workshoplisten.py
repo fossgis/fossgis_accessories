@@ -199,16 +199,45 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
                            )
                 writer.writerow(row)
 
-    tex_lines = []
+    tex_lines = [r'\begin{landscape}']
+
+
+    tex_lines.append(f"""
+    \centering
+    \LARGE FOSSGIS 2023 Workshops
+    \\normalsize
+    """)
+    tex_lines.append(r'\begin{tabularx}{\columnwidth}{l|l|p{3cm}|l}'
+                     r'Zeit & Raum & Leitung & Workshop \\'
+                     r'\hline')
+    rx_raum = re.compile(r'(?P<name>.+) \((?P<raum>.*)\).*')
+    for i, ws in enumerate(workshops):
+        zeit = ws.zeit.replace('Mittwoch', 'Mi')
+        for k, v in {'Mittwoch': 'Mi', 'Donnerstag': 'Do', 'Freitag': 'Fr'}.items():
+            zeit = zeit.replace(k, v)
+        if ws.raum:
+            match = rx_raum.match(ws.raum)
+            raum = '{} {}'.format(match.group('raum'), match.group('name'))
+        else:
+            raum = None
+        tex_lines.append(f'{zeit} & {raum} & {ws.leitung} & {ws.name} \\\\')
+    tex_lines.append(r'\hline \end{tabularx} \end{landscape} \pagebreak')
+
+
+    tex_lines.append(r'\renewcommand{\arraystretch}{2}')
     for i, ws in enumerate(workshops):
         if i > 0:
             tex_lines.append('\pagebreak')
 
+        # tex_lines.append(r'\put(0,0){\includegraphics[width=25mm]{../imgs/2023/FOSSGIS_2023.pdf}}')
+
+        # tex_lines.append(r'\raggedright \includegraphics[width=25mm]{../imgs/2023/FOSSGIS_2023.pdf}')
         tex_lines.append(
 
             f"""
+            
             \centering 
-            \Large Workshop \par 
+            \Large FOSSGIS 2023 Workshop \par 
             \LARGE "{ws.name}" \par
             \large Leitung: {ws.leitung} \par
                    Zeit: {ws.zeit} \par
@@ -228,7 +257,7 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
             cols = ' & '.join([str(c) for c in cols]) + r' \\ '
             tex_lines.append(cols)
         tex_lines.append(r'\hline '
-                         r'\end{tabularx}')
+                         r'\end{tabularx} \vspace{\fill}' )
 
     with open(path_tex, 'w', encoding='utf-8') as f:
         f.writelines('\n'.join(tex_lines))
