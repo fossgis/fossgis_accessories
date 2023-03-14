@@ -11,7 +11,7 @@ from typing import Dict, List
 
 PATH_JSON = '2023_pretixdata.json'  # Bestelldaten
 PATH_NREI = '2023_nrei.json'  # 'Rechnungsdaten -> für Firmennamen
-PATH_BADGE_CSV = 'badges.C.csv'
+PATH_BADGE_CSV = 'badges.D.csv'
 
 # if True -> generiert ein pseudodata.badges.csv mit Max & Maria Musterfrau data
 PSEUDODATA: bool = False
