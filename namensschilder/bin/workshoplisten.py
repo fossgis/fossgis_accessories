@@ -26,9 +26,9 @@ class csvDialect(csv.Dialect):
 # WS-Raum 2 Teltow (1'101): 16 Plätze
 # WS-Raum 3 Prignitz (1'230): 12 Plätze
 class RAUEME(object):
-    Spreewald24 = "Spreewald (1'231) 24 Pätze"
-    Teltow16 = "Teltow (1'101) 16 Plätze"
-    Prignitz12 = "Prignitz (1'230): 12 Plätze"
+    Spreewald24 = "WS1 Spreewald (1'231) 24 Pätze"
+    Teltow16 = "WS2 Teltow (1'101) 16 Plätze"
+    Prignitz12 = "WS3 Prignitz (1'230): 12 Plätze"
 
 
 # Ordnet Räume einzelnen Workshops zu
@@ -160,7 +160,7 @@ def readWorkshops(jsonData: Dict) -> Dict[str, dict]:
 
                                 tn.mail = order['email']
                                 tn.name = '<Nachbuchung>'
-                            tn.order = f'{code}->{refCode}'
+                            tn.order = f'{code} ->{refCode}'
 
                             ws.teilnehmer.append(tn)
                         else:
@@ -208,7 +208,11 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
     \LARGE FOSSGIS 2023 Workshops
     \\normalsize
     """)
-    tex_lines.append(r'\begin{tabularx}{\columnwidth}{l|l|p{3cm}|l}'
+    tex_lines.append(r'\begin{tabularx}{\textwidth}{'
+                     r'l|'
+                     r'l|'
+                     r'>{\raggedright\arraybackslash\hsize=3cm}X|'
+                     r'>{\raggedright\arraybackslash\hsize=13cm}X}'
                      r'Zeit & Raum & Leitung & Workshop \\'
                      r'\hline')
     rx_raum = re.compile(r'(?P<name>.+) \((?P<raum>.*)\).*')
@@ -248,7 +252,7 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
         tex_lines.append(r'\vspace{1cm}')
 
         tex_lines.append(r'Teilnehmer:innen: \par \par \small')
-        tex_lines.append(r'\begin{tabularx}{\columnwidth}{l|l|l|l|X} '
+        tex_lines.append(r'\begin{tabularx}{\columnwidth}{l|l|l|>{\raggedright\arraybackslash\hsize=1.5cm}X|l} '
                          # r'\hline'
                          r'No. & Name & Mail & Order & Unterschrift \\ '
                          r'\hline ')
