@@ -74,6 +74,7 @@ class Workshop(object):
         self.leitung: str = None
         self.zeit: str = None
         self.raum: str = None
+        self.active: bool = False
         self.teilnehmer: List[str] = []
 
     def __str__(self):
@@ -108,6 +109,7 @@ def readWorkshops(jsonData: Dict) -> Dict[str, dict]:
             ws = Workshop()
             ws.itemId = item['id']
             name = item['name']
+            ws.active = item['active']
             ws.raum = WS_RAEUME.get(name, None)
             ws.name = tex_escape(name)
             html = item['description']
@@ -178,7 +180,7 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
     tex_lines = []
     csv_lines = []
     path_tex = path_csv.parent / re.sub(r'\.csv$', '.tex', path_csv.name)
-    header = ['ws', 'wsname', 'wszeit', 'wsraum', 't', 'tname', 'tmail', 'torder']
+    header = ['ws', 'active', 'wsname', 'wszeit', 'wsraum', 't', 'tname', 'tmail', 'torder', ]
 
     workshops = [w for w in workshops if len(w.teilnehmer) > 0]
 
@@ -191,6 +193,7 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
                 tn: Teilnehmer
                 row = dict(ws=i + 1,
                            wsname=ws.name,
+                           active=ws.active,
                            wszeit=ws.zeit,
                            wsraum=ws.raum,
                            t=j + 1,
@@ -217,6 +220,7 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
                      r'\hline')
     rx_raum = re.compile(r'(?P<name>.+) \((?P<raum>.*)\).*')
     for i, ws in enumerate(workshops):
+        ws:Workshop
         zeit = ws.zeit.replace('Mittwoch', 'Mi')
         for k, v in {'Mittwoch': 'Mi', 'Donnerstag': 'Do', 'Freitag': 'Fr'}.items():
             zeit = zeit.replace(k, v)
@@ -225,7 +229,13 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
             raum = '{} {}'.format(match.group('raum'), match.group('name'))
         else:
             raum = None
-        tex_lines.append(f'{zeit} & {raum} & {ws.leitung} & {ws.name} \\\\')
+
+        if ws.active:
+            sout = lambda x: str(x)
+        else:
+            sout = lambda x:f'\sout{{{x}}}'
+
+        tex_lines.append(f'{sout(zeit)} & {sout(raum)} & {sout(ws.leitung)} & {sout(ws.name)} \\\\')
     tex_lines.append(r'\hline \end{tabularx} \end{landscape} \pagebreak')
 
 
@@ -233,20 +243,21 @@ def writeWorkshops(workshops: List[Workshop], path_csv: pathlib.Path):
     for i, ws in enumerate(workshops):
         if i > 0:
             tex_lines.append('\pagebreak')
-
-        # tex_lines.append(r'\put(0,0){\includegraphics[width=25mm]{../imgs/2023/FOSSGIS_2023.pdf}}')
-
-        # tex_lines.append(r'\raggedright \includegraphics[width=25mm]{../imgs/2023/FOSSGIS_2023.pdf}')
+        ws: Workshop
+        if ws.active:
+            sout = lambda x: str(x)
+        else:
+            sout = lambda x:f'\sout{{{x}}}'
         tex_lines.append(
 
             f"""
             
             \centering 
             \Large FOSSGIS 2023 Workshop \par 
-            \LARGE "{ws.name}" \par
-            \large Leitung: {ws.leitung} \par
-                   Zeit: {ws.zeit} \par
-                   Raum: {ws.raum} \par
+            \LARGE "{sout(ws.name)}" \par
+            \large Leitung: {sout(ws.leitung)} \par
+                   Zeit: {sout(ws.zeit)} \par
+                   Raum: {sout(ws.raum)} \par
             """)
         tex_lines.append(r'Beschreibung: \par ' + ws.description + r' \par ')
         tex_lines.append(r'\vspace{1cm}')
