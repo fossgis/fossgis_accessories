@@ -1,13 +1,15 @@
 *~
+# Grundsätzlich keine CSV, JSON, oder PDFs speichern, da diese DSGVO relevante Inhalte beinhalten könne.
+*.csv
+*.json
+*.pdf
+# Ausnahmen:
+!imgs/2023/fossgis2023_background.pdf
+!namensschilder/bin/
 *.log
 *.aux
-*.pdf
 *.out
 *.synctex.gz
 *.synctex.gz.properties
 imgs/signature.png
 pretix.csv
-namensschilder/bin/*badges*.csv
-*pretixdata.json
-*_nrei.json
-!imgs/2023/fossgis2023_background.pdf
