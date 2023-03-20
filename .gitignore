@@ -4,6 +4,7 @@
 *.pdf
 *.out
 *.synctex.gz
+*.synctex.gz.properties
 imgs/signature.png
 pretix.csv
 namensschilder/bin/*badges*.csv
