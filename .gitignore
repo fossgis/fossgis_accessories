@@ -8,6 +8,7 @@
 !namensschilder/bin/
 *.log
 *.aux
+*.pyc
 *.out
 *.synctex.gz
 *.synctex.gz.properties
