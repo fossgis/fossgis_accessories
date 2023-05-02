@@ -89,22 +89,23 @@ REPLACE_IN_COMPANIES = {
     'Bundesamt für Kartographie und Geodäsie': re.compile('(BKG|Bundesamt für Kartographie und Geodäsie)'),
     'WhereGroup GmbH': re.compile(r'WhereGrouo?p GmbH', re.I),
     'DB Systel GmbH': re.compile('DB Systel GmbH c/o Deutsche Bahn AG'),
-    'Landesamt für Geoinformation und Landesvermessung Niedersachsen': re.compile(r'LGLN|Landesamt für Geoinformation und Landesvermessung Niedersachsen', re.I),
-    'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz': re.compile(r'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz', re.I),
+    'Landesamt für Geoinformation und Landesvermessung Niedersachsen': re.compile(
+        r'LGLN|Landesamt für Geoinformation und Landesvermessung Niedersachsen', re.I),
+    'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz': re.compile(
+        r'Landesamt für Vermessung und Geobasisinformation Rheinland-Pfalz', re.I),
     'Landesamt für Geoinformation und Landentwicklung Baden-Württemberg':
         re.compile(r'Landesamt für Geoinformation und Landentwicklung (Baden-Württemberg|BW)', re.I),
-    'Landesvermessung und Geobasisinformation Brandenburg' : re.compile('^LGB$'),
+    'Landesvermessung und Geobasisinformation Brandenburg': re.compile('^LGB$'),
     'Staatsbibliothek zu Berlin': re.compile(r'staatsbibliothek zu berlin', re.I),
     'Umweltbundesamt (UBA)': re.compile(r'umweltbundesamt|\(UBA\)', re.I),
     'Stadt Leipzig': re.compile(r'Stadt Leipzig', re.I),
     'Technische Universität Chemnitz': re.compile('Technische Universität Chemnitz'),
     'Bezirksamt Tempelhof-Schöneberg von Berlin': re.compile(r'Bezirksamt Tempelhof-Schöneberg von Berlin', re.I),
     'DB Fahrwegdienste GmbH': re.compile(r'DB Fahrwegdienste GmbH', re.I),
-    'Landesamt für Geoinformation \& Landesvermessung Niedersachsen' :  re.compile('LGLN'),
+    'Landesamt für Geoinformation \& Landesvermessung Niedersachsen': re.compile('LGLN'),
     'Leibniz-Zentrum für Agrarlandschaftsforschung (ZALF)': re.compile('ZALF'),
-    'Deutsches Zentrum für Luft- und Raumfahrt (DLR)' : re.compile('Deutsches Zentrum für Luft- und Raumfahrt'),
+    'Deutsches Zentrum für Luft- und Raumfahrt (DLR)': re.compile('Deutsches Zentrum für Luft- und Raumfahrt'),
 }
-
 
 # END SETTINGS
 
@@ -126,7 +127,6 @@ class BadgeInfo(object):
                  orderCode: str = None,
                  ticket: str = None,
                  notes: str = None):
-
         self.order: str = orderCode
         self.name: str = normalizeName(name) if isinstance(name, str) else None
         self.nachname: str = extractSurname(self.name) if isinstance(self.name, str) else None
@@ -174,7 +174,9 @@ def normalizeName(name: str) -> str:
     if name.find(" (") > 0:
         name = name[:name.find(" (")]
     name = re.sub(r'Dipl\.-(Ing|Geogr|Geol)\.[ ]+]', '', name)
-    name = re.sub(r'(FD Vermesssung und Geodaten Stadt Hildesheim|Staatsbibliothek zu Berlin|Development and Operations| / Sourcepole)[ ]*', '', name)
+    name = re.sub(
+        r'(FD Vermesssung und Geodaten Stadt Hildesheim|Staatsbibliothek zu Berlin|Development and Operations| / Sourcepole)[ ]*',
+        '', name)
     if ',' in name:
         name = ' '.join(reversed(re.split(r'[ ]*,[ ]*', name)))
     return name
@@ -219,8 +221,8 @@ def readCompanyNames(path: pathlib.Path) -> Dict[str, str]:
 
     return CN
 
-def replace_strings(text:str, replacements:dict):
 
+def replace_strings(text: str, replacements: dict):
     for newtext, oldtext in replacements.items():
         if isinstance(oldtext, str):
             text = text.replace(oldtext, newtext)
@@ -369,9 +371,9 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
                 if isinstance(cn, str):
                     cn = re.split(r'(, | \\ )', cn)[0]
                 badge = BadgeInfo(mail=mail,
-                                         name=questions.get(69219, name),
-                                         orderCode=code,
-                                         company=cn)
+                                  name=questions.get(69219, name),
+                                  orderCode=code,
+                                  company=cn)
                 BADGES[badge.id()] = badge
 
     for cntOrder, order in enumerate(jsonData["event"]["orders"]):
@@ -589,7 +591,6 @@ if __name__ == '__main__':
 
             for i, b in enumerate(extra_badges.values()):
                 badges[f'guest_{i + 1}'] = b
-
 
             # Füge 10 leere Badges hinzu und
             emptyBadges = 10
