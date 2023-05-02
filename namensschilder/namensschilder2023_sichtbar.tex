@@ -1,0 +1,41 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm, bottom=0mm, top=0mm]{geometry}
+\usepackage[schilder,rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+
+
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedfalse % Rahmen um Namensschild
+\@emptycrossmarkfalse % Falzmarken
+\@cutmarktrue % Schnittmarken
+\@crossmarkfalse % Schnittmarken
+\makeatother
+
+
+\begin{document} 
+% lädt u.a. \BadgeCSV
+\include{namensschilder2023_commands.tex}
+\DTLsetseparator{;}
+% % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
+% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops;company
+\DTLloaddb{CSV}{\BadgeCSV}
+
+\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag, \company=company}
+{
+  \badgesichtbar{\name}{\av}{\osm}{\company}
+  \badgesichtbar{\name}{\av}{\osm}{\company}
+} 
+\end{document} 
