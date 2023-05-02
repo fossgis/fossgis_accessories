@@ -1,0 +1,47 @@
+
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage[schilder, rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool} 
+\usepackage{ifthen}
+\usepackage{ngerman}
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[normalem]{ulem}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=5mm}
+\setlist{nosep}
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+
+%\renewcommand*\rmdefault{iwona}
+\newcounter{ticketcount}
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedtrue % Rahmen um Namensschild
+\@emptycrossmarktrue% Falzmarken
+\@cutmarktrue % Schnittmarken
+\makeatother
+
+\begin{document} 
+% lädt u.a. \BadgeCSV
+\include{namensschilder2023_commands.tex}
+\DTLsetseparator{;}
+\DTLloaddb{CSV}{\BadgeCSV}
+% order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
+% essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops
+\DTLforeach{CSV}{\order=order, \name=name,\type=ticket,\tshirt=tshirt,\mail=mail,
+\av=av,\essen=essen,\ws=workshops, \ex=exkursionen, \tb=tb, \notizen=notes}
+{
+  \typeout{Ticket \arabic{ticketcount}: \order  "\name "}  
+  \badgeinnenlinks{\order}{\name}{\mail}{\type}{\tb}{\tshirt}{\essen}{\notizen}
+  \badgeinnenrechts{\ws}{\ex}
+  \addtocounter{ticketcount}{1}
+} 
+\end{document} 

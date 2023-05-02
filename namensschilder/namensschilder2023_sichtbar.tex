@@ -4,6 +4,7 @@
 \usepackage[schilder,rowmode]{ticket}
 \usepackage{graphicx,palatino}
 \usepackage{xcolor}
+\usepackage{hyperref}
 \usepackage[utf8]{inputenc} 
 \usepackage{datatool} 
 \usepackage{ifthen}
@@ -19,43 +20,14 @@
 \makeatletter
 \@boxedfalse % Rahmen um Namensschild
 \@emptycrossmarkfalse % Falzmarken
-\@cutmarkfalse
+\@cutmarktrue % Schnittmarken
 \@crossmarkfalse % Schnittmarken
 \makeatother
 
-\ifdefined\BadgeCSV
-\else
-	\newcommand{\BadgeCSV}{bin/pseudodata.badges.csv}  
-\fi
-
-\newcommand{\schild}[4]{\ticket{%
-% das fossgis2023_background.pdf liegt in A6 quer vor %
-% und kann so komplett als Hintergrund Bild genutzt werden % 
-
-% Breite DIN A 7 74mm x 105mm
-\put(0,0){\includegraphics[width=105mm]{../imgs/2023/fossgis2023_background.pdf}}
-\put(5mm,30mm){
-  % in der \parbox werden lange Namen umgebrochen
-  % \centering durch \raggedleft oder \raggedright erstetze um 
-  % zu prüfen ob die Seitenränder eingehalten werden
-
-  \parbox{93mm}{ \vfill
-  \centering  \fontsize{32}{45} \textbf{#1} \normalsize \\ {#4}
-  		}
-		
-  }
-  
-\put(85mm,60mm){\parbox{10mm}{\raggedleft \footnotesize
-		\ifthenelse{\equal{#2}{True}}{AV\\}{ }
-		\ifthenelse{\equal{#3}{True}}{OS\\}{ }
-
-}}
-}}
-
-
 
 \begin{document} 
-% \include{definitions}
+% lädt u.a. \BadgeCSV
+\include{namensschilder2023_commands.tex}
 \DTLsetseparator{;}
 % % order;name;nachname;mail;ticket;tl_name;tl_veroeff;tl_erhalten;
 % essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops;company
@@ -63,7 +35,7 @@
 
 \DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag, \company=company}
 {
-  \schild{\name}{\av}{\osm}{\company}
-  \schild{\name}{\av}{\osm}{\company}
+  \badgesichtbar{\name}{\av}{\osm}{\company}
+  \badgesichtbar{\name}{\av}{\osm}{\company}
 } 
 \end{document} 
