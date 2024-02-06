@@ -3,7 +3,7 @@ Hiermit können einzelne Namensschilder generiert werden
 """
 import pathlib
 from typing import Dict, List
-from convert2023 import BadgeInfo, writeBadgeCsv
+from convert2024 import BadgeInfo, writeBadgeCsv
 
 path = pathlib.Path('extra_badges.csv')
 
