@@ -1,5 +1,6 @@
 \ifdefined\BadgeCSV
 \else
+	%%\newcommand{\BadgeCSV}{extra_badges.csv}
 	\newcommand{\BadgeCSV}{badges.D.csv}
 \fi
 
@@ -38,9 +39,9 @@
 
   }
 
-\put(85mm,60mm){\parbox{10mm}{\raggedleft \footnotesize
-		\ifthenelse{\equal{#2}{True}}{AV\\}{ }
-		\ifthenelse{\equal{#3}{True}}{OS\\}{ }
+\put(85mm,60mm){\parbox{10mm}{\raggedleft
+		\ifthenelse{\equal{#2}{True}}{\includegraphics[width=10mm]{food.png}} { } %%  CC BY-SA 4.0 https://openmoji.org/library/emoji-1F958/
+		\ifthenelse{\equal{#3}{True}}{\includegraphics[width=10mm]{osm.png}} { } %%  CC BY-SA 4.0 https://openmoji.org/library/emoji-E04A/
 
 }}
 }}

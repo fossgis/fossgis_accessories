@@ -311,6 +311,7 @@ def readPseudoBadgeInfos() -> Dict[str, BadgeInfo]:
 
     notes = ['<weitere Anmerkungen>', '<andere Anmerkungen>']
     tshirts = []
+    nickname = ['yolo', 'rofl', '1337', '1312']
     for schnitt in ['tailliert geschnitten', 'gerade geschnitten']:
         for size in ['M', 'L', 'XL', '2XL', '3XL']:
             tshirts.append(f'{schnitt} - {size}')
@@ -598,8 +599,8 @@ if __name__ == '__main__':
             for i, b in enumerate(extra_badges.values()):
                 badges[f'guest_{i + 1}'] = b
 
-            # Füge 10 leere Badges hinzu und
-            emptyBadges = 10
+            # Füge 30 leere Badges hinzu und
+            emptyBadges = 30
 
             # Fülle A4 Blatt auf
             while (len(badges) + emptyBadges) % 4 != 0:
