@@ -1,0 +1,87 @@
+\ifdefined\BadgeCSV
+\else
+	%%\newcommand{\BadgeCSV}{extra_badges.csv}
+	\newcommand{\BadgeCSV}{badges.D.csv}
+\fi
+
+
+\renewcommand{\ticketdefault}{}%
+
+
+\newcommand{\striked}[3]{
+	\ifthenelse{\equal{#3}{#2}}{
+		\sout{#1}	
+	}{
+		#1 #2	
+	}
+}
+
+\newcommand{\badgesichtbar}[4]{\ticket{%
+% das fossgis2023_background.pdf liegt in A6 quer vor %
+% und kann so komplett als Hintergrund Bild genutzt werden %
+
+% Breite DIN A 7 74mm x 105mm
+\put(0,0){\includegraphics[width=105mm]{../imgs/2024/fossgis_background.pdf}}
+\put(5mm,30mm){
+  % in der \parbox werden lange Namen umgebrochen
+  % \centering durch \raggedleft oder \raggedright erstetze um
+  % zu prüfen ob die Seitenränder eingehalten werden
+
+  \parbox{93mm}{ \vfill \raggedleft \fontsize{32}{45}
+  \textbf{#1}
+  %\textbf{
+  %\begin{Form}
+  %\textbf{\TextField[multiline,value=foobar,width=10cm]{}}
+  %\end{Form}
+  %}
+  \normalsize \\ {#4}
+  		}
+
+  }
+
+\put(85mm,60mm){\parbox{10mm}{\raggedleft
+		\ifthenelse{\equal{#2}{True}}{\includegraphics[width=10mm]{food.png}} { } %%  CC BY-SA 4.0 https://openmoji.org/library/emoji-1F958/
+		\ifthenelse{\equal{#3}{True}}{\includegraphics[width=10mm]{osm.png}} { } %%  CC BY-SA 4.0 https://openmoji.org/library/emoji-E04A/
+
+}}
+}}
+
+
+
+\newcommand{\badgeinnenlinks}[8]{\ticket{
+\put(8,45){
+  % in der \parbox werden auch lange namen umgebrochen
+  \parbox{8.5cm}{
+   % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
+    \color{gray} \raggedright \small
+    
+    %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
+	Order: #1 \\  	
+  	Name: #2 \\
+  	Mail: #3 \\
+  	Ticket: #4 \\  	
+  	%Tagungsband: \ifthenelse{\equal{#5}{True}}{Ja}{---------} \\
+  	\striked{Tagungsband:}{ #5}{False} \\
+  	\striked{T-Shirt:}{ #6}{} \\
+  	\striked{Essen:}{ #7}{} \\
+  	Anmerkungen: #8
+%  	T-Shirt: \ifthenelse{\equal{#6}{}}{---------}{#6} \\
+%  	Essen: \ifthenelse{\equal{#7}{}}{---------}{#7} \\
+  }
+  }
+}}
+
+\newcommand{\badgeinnenrechts}[2]{\ticket{%
+\put(2,50){
+  % in der \parbox werden auch lange namen umgebrochen
+  \parbox{90mm}{
+   % dezente Farbe, damit diese infos nicht auf die Vorderseite durchscheinen
+    \color{gray} \raggedright \small
+    %%Nachname,Vorname,Ticket,TShirt,TBand,TListe,AV,Mittag,WS,EX,OSM
+    Workshops: #1 \\ 
+  	Exkursionen: #2 \\
+  	%\begin{itemize}  \item Orchestrierung einer GDI über Docker \item Mapbender - Einstieg in den Aufbau von WebGIS-Anwendungen \item React basierte WebGIS Clients mit MapComponents \& MapLibre-gl \end{itemize}
+  	%\begin{itemize} \item item1 \item 2\end{itemize}
+  }
+  }
+}}

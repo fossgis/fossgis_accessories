@@ -7,6 +7,8 @@
 !imgs/2023/fossgis2023_background.pdf
 !namensschilder/bin/
 *.log
+*.fls
+*.fdb_latexmk
 *.aux
 *.pyc
 *.out
@@ -14,3 +16,5 @@
 *.synctex.gz.properties
 imgs/signature.png
 pretix.csv
+namensschilder/workshopliste.tex
+*.synctex(busy)
