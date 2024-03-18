@@ -450,7 +450,7 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
                     badge.tl_veroeff = str(qanswer).lower() in ['true']
                 elif qid == 69294:  # Name Englesystem
                     badge.engel = qanswer
-                elif qid == 109418:  # Wie is dein Mappername?
+                elif qid == 100535:  # Wie is dein Mappername?
                     badge.osm_name = qanswer
                 elif qid == 109418:  # Wie is dein Nickname?
                     badge.nickname = qanswer
@@ -461,7 +461,7 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
             ## Add other items
             if itemID == 416735:  # T-Shirt
                 badge.tshirt = variationName
-            elif itemID == 416736 :  # Helfende T-Shirt:
+            elif itemID == 416736:  # Helfende T-Shirt:
                 badge.tshirt = variationName
             elif itemID == 416734:  # Ich möchte einen Tagungsband erhalten
                 badge.tb = True
@@ -479,6 +479,8 @@ def readBadgeInfos(jsonData: dict, companyNames: Dict[str, str] = None) -> Dict[
 
                 badge.essen = variationName
             elif itemID == 451658:  # Ja, ich nehme an der Abendveranstaltung teil.
+                badge.av = True
+            elif itemID == 416737:  # Ja, ich nehme an der Abendveranstaltung teil.
                 badge.av = True
             elif itemID in EXKURSIONEN_IDs:
                 badge.exkursionen.append(variationName)
