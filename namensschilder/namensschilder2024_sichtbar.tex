@@ -33,9 +33,9 @@
 % essen;tshirt;av;tb;tb_adresse;osm_samstag;osm_name;exkursionen;workshops;notes;needs_check
 \DTLloaddb{CSV}{\BadgeCSV}
 
-\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag, \company=company}
+\DTLforeach{CSV}{\name=name, \av=av, \osm=osm_samstag, \company=company, \osm_name=osm_name, \nickname=nickname}
 {
-  \badgesichtbar{\name}{\av}{\osm}{\company}
-  \badgesichtbar{\name}{\av}{\osm}{\company}
+  \badgesichtbar{\name}{\av}{\osm}{\company}%\ifthenelse{\equal{\osm_name}{}}{}{ \osm_name }
+  \badgesichtbar{\name}{\av}{\osm}{\company}%\ifthenelse{\equal{\nickname}{}}{}{ \nickname }
 } 
 \end{document} 
