@@ -51,7 +51,26 @@ Dies LaTeX scripte lesen die CSV um ein PDF für die Aussen- und Innenseite zu e
         
 
 5.## (optional) PDFs mixen
+### CLI tool
 
+[qpdf](https://packages.debian.org/bookworm/qpdf) ist hier sehr hilfreich weil automatisierbar ...
+
+```
+apt update && apt install qpdf
+```
+
+Zum verbinden der beiden Ausgangsdatein deren Pfad/Name angeben und bestätigen - herauskommt eine out.pdf die Vorder- und Innenseite beinhaltet. Beim druck auf duplex achten 😇
+
+```
+qpdf --empty --collate=1 --pages namensschilder2024_sichtbar.pdf namensschilder2024_inn
+en.pdf -- out.pdf
+```
+
+### GUI tools
+#### pdf24 🐑
+https://help.pdf24.org/de/fragen/frage/pdf-per-reissverschlussverfahren-zusammenfuehren-sortieren/
+
+#### PDF SAM 📎
 Nun kann man noch beiden PDFs zu einem machen, indem jede 2. Seite, d.h. die Rückseite eines A4 Blattes, die Innenseite
 eines Badges darstellt. 
 

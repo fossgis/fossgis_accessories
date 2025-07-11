@@ -1,0 +1,192 @@
+
+%\documentclass[a4paper, 12pt]{letter}
+\documentclass[12pt]{letter}
+%\usepackage[total={210mm,297mm},top=0mm,left=30mm,bottom=0mm,top=0mm]{geometry}
+%\usepackage[total={210mm,75mm},top=0mm,left=0mm,bottom=0mm,top=0mm]{geometry}
+\usepackage[total={210mm,75mm}, paperwidth=210mm, paperheight=75mm]{geometry}
+\usepackage[schilder, rowmode]{ticket}
+\usepackage{graphicx,palatino}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc} 
+\usepackage{datatool}
+\usepackage[sfdefault]{ClearSans} %% option 'sfdefault' activates Clear Sans as the default text font
+\usepackage[T1]{fontenc}
+\usepackage{ifthen}
+\usepackage{adjustbox}
+\usepackage{xstring}
+\usepackage{tikz}
+
+ %\overfullrule 10pt
+ \hyphenpenalty 1000
+ \exhyphenpenalty 10000
+
+
+\renewcommand{\ticketdefault}{}%
+\makeatletter
+\@boxedfalse % Rahmen um Namensschild
+\@emptycrossmarkfalse % Falzmarken
+\@cutmarkfalse % Schnittmarken
+\@crossmarkfalse % Schnittmarken
+\makeatother
+
+\ifdefined\BadgeInnenSeiten
+\else
+	\newcommand{\BadgeInnenSeiten}{True}
+\fi
+
+\typeout{Mit Innenseiten? \BadgeInnenSeiten }%
+
+\newcommand{\ticketLogoCONF}[0]{%
+    \put(5mm,55mm){\includegraphics[width=15mm]{img/logo_fossgis2025.pdf}}
+}
+
+\newcommand{\ticketLogoOSM}[0]{%
+    \put(5mm,55mm){\includegraphics[width=15mm]{img/logo_osmsamstag2025.pdf}}
+}
+
+\newcommand{\ticketLogoHACK}[0]{%
+    \put(5mm,55mm){\includegraphics[width=15mm]{img/logo_ifgihack2025.pdf}}
+}
+
+\newcommand{\tickedLogoSPRINT}[0]{%
+    \put(5mm,55mm){\includegraphics[width=15mm]{img/logo_codesprint2025.pdf}}
+}
+
+\newcommand{\striked}[3]{
+	\ifthenelse{\equal{#3}{#2}}{
+		\sout{#1}
+	}{
+		#1 #2
+	}
+}
+
+% Sichtbare Seite des Badges
+\newcommand{\badgesichtbar}[5]{\ticket{%
+    % #1 = badgetype
+    % #2 = tickettype
+    % #3 = badgename
+    % #4 = badgezusatz
+    % #5 = AV
+    %
+    % Breite DIN A 7 74mm x 105mm
+    % Hintergrundbild
+    \put(0,0){\includegraphics[width=105mm]{img/fossgis2025_background.pdf}}
+
+    % ticket type?
+    \IfStrEqCase{#1}{%
+        {CONF}{\ticketLogoCONF}%
+        {HACK}{\ticketLogoHACK}%
+        {OSM}{\ticketLogoOSM}%
+        {SPRINT}{\tickedLogoSPRINT}%
+    }[]% Default case
+
+   % Helfende? zeichne rote line ein
+   \IfStrEq{#2}{Konferenzticket für Helfende (bezahlt)}{%
+        \put(30mm,57mm){
+        \begin{tikzpicture}
+                %\draw[orange, line width=2mm] (0,0) -- (5.2,0);
+                \draw[orange, ultra thick] (0,0) -- (5.3,0);
+            \end{tikzpicture}
+        }
+        %\put(82mm,65mm){
+        %    \parbox{10mm}{
+        %    \raggedleft
+        %    \Huge \textcolor{orange}{H}
+        %}}
+   }{}
+    % FOSSGIS Abendveranstaltung? dann zeige event.png oben rechts
+    \IfStrEq{#1}{CONF}{%
+        \put(85mm,65mm){
+            \parbox{10mm}{
+            \raggedleft
+            \ifthenelse{\equal{#5}{True}}{\includegraphics[width=5mm]{img/logo_abendveranstaltung.pdf}}{}
+            }
+        }
+    }{}
+    % Zeige namen und zusatz (firma/nickname etc.) and
+    \put(5mm,32mm){
+       \adjustbox{%fbox, % zeichnet rahmen (für Positionierung)
+            color=gray,
+            minipage=[c][40mm]{90mm},
+            % max totalheight=70mm, max width=95mm
+            }{%
+            \begin{spacing}{0.5}
+            \begin{center}
+            \Huge \textbf{#3} \\
+            \vspace{1ex}
+            \large{#4}
+            \end{center}
+            \end{spacing}
+        }
+      }
+
+}}
+
+
+\newcounter{ticketcount}
+\begin{document}
+\DTLsetseparator{;}
+\DTLloaddb{CSV}{\BadgeCSV}
+%\DTLloadrawdb{CSV}{\BadgeCSV}
+
+\DTLforeach{CSV}{%
+    \order=order,
+    \name=name,
+    \vorname=vorname,
+    \tickettype=ticket,
+    \av=av,
+    \mail=mail,
+    \exkursionen=exkursionen,
+    \workshops=workshops,
+    \tshirt=tshirt,
+    \tb=tb,
+    \badgetype=badge_type,
+    \badgename=badge_name,
+    \badgezusatz=badge_zusatz}{%
+    \typeout{Ticket \arabic{ticketcount}: \order  "\name " \badgetype}%
+    \DTLsubstituteall{\name}{_}{\_}%
+    \DTLsubstituteall{\vorname}{_}{\_}%
+    \DTLsubstituteall{\mail}{_}{\_}%
+    \DTLsubstituteall{\badgename}{_}{\_}%
+    \DTLsubstituteall{\badgezusatz}{_}{\_}%
+    \DTLsubstituteall{\badgezusatz}{&}{\&}%
+    \badgesichtbar{\badgetype}{\tickettype}{\badgename}{\badgezusatz}{\av}%
+    \badgesichtbar{\badgetype}{\tickettype}{\badgename}{\badgezusatz}{\av}%
+    \ifthenelse{\equal{\BadgeInnenSeiten}{True}}{
+        \backside
+        \IfStrEq{\badgetype}{CONF}{
+            \ticket{% Badge Innen Rechts
+            % Breite DIN A 7 74mm x 105mm
+                \put(5,65){
+                    \adjustbox{%fbox,
+                        stack=lt, color=gray, max totalheight=60mm, max width=80mm}{
+                        Workshops: \workshops \\
+                        Exkursionen: \exkursionen
+                    }
+                }
+            }
+        }{\ticket{}}
+        \ticket{% Badge Innen Links
+            \put(5mm,65mm){
+              \adjustbox{% fbox,
+                stack=lt, color=gray, max totalheight=60mm, max width=80mm}{
+                \small
+                Order: \order \\
+                Name: \name, \vorname  \\
+                Mail: \mail \\
+                Ticket: \tickettype \\
+                \IfStrEq{\badgetype}{CONF}{
+                    \striked{T-Shirt:}{\tshirt}{} \\
+                    \striked{Tagungsband:}{\tb}{\tb} \\
+                }{}
+              }
+            }
+          }
+    }{}
+    \newpage\ticketreset %
+    \addtocounter{ticketcount}{1}%
+    }
+\end{document}

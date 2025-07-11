@@ -3,10 +3,10 @@ import json
 import pathlib
 import re
 from typing import Dict, List
-from convert2023 import TICKET_IDs, tex_escape
+from convert2024 import TICKET_IDs, tex_escape
 
-PATH_JSON = '2023_pretixdata.json'  # Bestelldaten
-PATH_NREI = '2023_nrei.json'  # 'Rechnungsdaten -> für Firmennamen
+PATH_JSON = './bin/2024_pretixdata.json'  # Bestelldaten
+PATH_NREI = './bin/2024_nrei.json'  # 'Rechnungsdaten -> für Firmennamen
 PATH_CSV = 'workshopliste.csv'
 
 PATH_CSV = pathlib.Path(PATH_CSV).resolve()

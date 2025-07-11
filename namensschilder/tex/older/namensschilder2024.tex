@@ -1,0 +1,24 @@
+\documentclass[a4paper, 12pt]{letter}
+\usepackage[total={210mm,297mm},top=0mm,left=0mm,includefoot]{geometry}
+\usepackage{pdfpages}
+\usepackage{pgffor}
+\begin{document}
+\pdfximage{namensschilder2024_innen.pdf}
+\def\nbPages{\the\pdflastximagepages}
+
+
+\ifdefined\PDFSichtbar
+\else
+	\newcommand{\PDFSichtbar}{namensschilder2024_sichtbar.pdf}
+\fi
+\ifdefined\PDFInnen
+\else
+	\newcommand{\PDFInnen}{namensschilder2024_innen.pdf}
+\fi
+
+% setzt das finale PDF aus jeweil Vorder- und Innenseite zusammen
+\foreach \i in {1,...,\nbPages} {%
+	\includepdf[pages=\i]{\PDFSichtbar}	
+	\includepdf[pages=\i]{\PDFInnen}
+}
+\end{document}
